@@ -1,7 +1,7 @@
-#include "touch.h"
+#include "tft/touch.h"
 #include "driver/i2c_master.h"
 #include "espressif_esp_lcd_touch_gt911_1.1.0/include/esp_lcd_touch_gt911.h"
-#include "tft.h"
+#include "tft/tft.h"
 
 void touchpad_read(lv_indev_t *indev_drv, lv_indev_data_t *data)
 {

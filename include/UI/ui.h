@@ -7,9 +7,9 @@
 #pragma once
 
 #include "wholeinclude.h"
-#include "color_palette.h"
+#include "ui/color_palette.h"
 #include <map>
-#include "ui_elements.h"
+#include "ui/ui_elements.h"
 
 extern esp_event_loop_handle_t ui_event_loop;
 extern EventGroupHandle_t ui_event_group;

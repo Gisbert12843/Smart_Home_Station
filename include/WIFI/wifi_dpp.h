@@ -10,8 +10,8 @@
 #include "nvs_flash.h"
 #include "wholeinclude.h"
 
-#include "ui.h"
-#include "WiFi_Functions.h"
+#include "ui/ui.h"
+#include "wifi/WiFi_Functions.h"
 
 #ifdef CONFIG_ESP_DPP_LISTEN_CHANNEL_LIST
 #define EXAMPLE_DPP_LISTEN_CHANNEL_LIST CONFIG_ESP_DPP_LISTEN_CHANNEL_LIST

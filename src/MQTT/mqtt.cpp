@@ -1,8 +1,8 @@
 
-#include "mqtt.h"
-#include "helper_functions.h"
-#include "ui.h"
-#include "mqtt_server.h"
+#include "mqtt/mqtt.h"
+#include "utils/helper_functions.h"
+#include "ui/ui.h"
+#include "mqtt/mqtt_server.h"
 
 #include <stdio.h>
 #include <inttypes.h>

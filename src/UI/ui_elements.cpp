@@ -1,10 +1,10 @@
-#include "ui_elements.h"
-#include "color_palette.h"
-#include "ui.h"
-#include "mqtt.h"
+#include "ui/ui_elements.h"
+#include "ui/color_palette.h"
+#include "ui/ui.h"
+#include "mqtt/mqtt.h"
 #include <string>
 #include <memory>
-#include "tft.h"
+#include "tft/tft.h"
 
 bool lv_color_compare(lv_color_t color1, lv_color_t color2)
 {

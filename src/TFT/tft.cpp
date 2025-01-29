@@ -1,4 +1,4 @@
-#include "tft.h"
+#include "tft/tft.h"
 
 // static SemaphoreHandle_t lvgl_mux; // LVGL mutex
 

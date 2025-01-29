@@ -1,9 +1,9 @@
 #pragma once
 
 #include "wholeinclude.h"
-#include "nvs_wrapper.h"
+#include "utils/nvs_wrapper.h"
 
-#include "global_flags.h"
+#include "utils/global_flags.h"
 
 namespace WiFi_Functions
 {

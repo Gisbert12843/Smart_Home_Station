@@ -6,7 +6,7 @@
 #include "memory"
 #include <map>
 #include "chrono"
-#include "wifi_dpp.h"
+#include "wifi/wifi_dpp.h"
 
 void mqtt_server(void *params);
 

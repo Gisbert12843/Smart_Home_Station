@@ -1,10 +1,10 @@
-#include "ui.h"
-#include "ui_elements.h"
-#include "mqtt.h"
-#include "helper_functions.h"
-#include "WiFi_Functions.h"
-#include "mqtt_server.h"
-#include "tft.h"
+#include "ui/ui.h"
+#include "ui/ui_elements.h"
+#include "mqtt/mqtt.h"
+#include "utils/helper_functions.h"
+#include "WIFI/WiFi_Functions.h"
+#include "mqtt/mqtt_server.h"
+#include "tft/tft.h"
 
 #define status_bar_height 37
 #define main_view_height EXAMPLE_LCD_V_RES - status_bar_height

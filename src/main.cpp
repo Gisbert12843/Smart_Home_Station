@@ -3,15 +3,14 @@ extern "C"
     void app_main(void);
 }
 #include "wholeinclude.h"
-#include "nvs_wrapper.h"
-#include "WiFi_Functions.h"
-#include "helper_functions.h"
-#include "mqtt.h"
-#include "tft.h"
-#include "color_palette.h"
-#include "ui.h"
-
-#include "wifi_dpp.h"
+#include "utils/nvs_wrapper.h"
+#include "wifi/WiFi_Functions.h"
+#include "utils/helper_functions.h"
+#include "mqtt/mqtt.h"
+#include "tft/tft.h"
+#include "ui/color_palette.h"
+#include "ui/ui.h"
+#include "wifi/wifi_dpp.h"
 
 
 void app_main()

@@ -1,4 +1,4 @@
-#include "wifi_dpp.h"
+#include "wifi/wifi_dpp.h"
 
 void dpp_enrollee_event_cb(esp_supp_dpp_event_t event, void *data)
 {

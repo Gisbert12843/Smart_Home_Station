@@ -1,12 +1,12 @@
 #pragma once
 #include "wholeinclude.h"
 
-#include "ui.h"
+#include "ui/ui.h"
 
 #include "esp_lcd_touch_gt911.h"
 #include "esp_lcd_ili9488.h"
-#include "touch.h"
-#include "helper_functions.h"
+#include "tft/touch.h"
+#include "utils/helper_functions.h"
 #include "driver/i2c_master.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

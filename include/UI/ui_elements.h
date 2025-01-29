@@ -2,7 +2,7 @@
 
 #include "wholeinclude.h"
 #include "lvgl.h"
-#include "color_palette.h"
+#include "ui/color_palette.h"
 
 extern std::recursive_mutex lvgl_mutex;
 

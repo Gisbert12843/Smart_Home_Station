@@ -1,4 +1,4 @@
-#include "mqtt_server.h"
+#include "mqtt/mqtt_server.h"
 
 #include <string.h>
 #include "freertos/FreeRTOS.h"
@@ -9,8 +9,8 @@
 #include "esp_heap_trace.h"
 
 #include "mongoose/mongoose.h"
-#include "ui.h"
-#include "helper_functions.h"
+#include "ui/ui.h"
+#include "utils/helper_functions.h"
 
 static const char *s_listen_on = "mqtt://0.0.0.0:1883";
 
