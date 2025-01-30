@@ -7,13 +7,8 @@
 #include "esp_wifi_types.h"
 #include "lwip/dns.h"
 
-
 #include "ui/ui.h"
 #include "wifi/wifi_dpp.h"
-
-
-
-
 
 // Individually defined SSID and Password for each Module
 #define AP_SSID "ESP32_MQTT_SERVER"
@@ -21,7 +16,7 @@
 
 void WiFi_Functions::wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
-    char *TAG = "wifi station";
+    std::string TAG;
     static int8_t s_retry_num = 0;
 
     constexpr int8_t EXAMPLE_ESP_MAXIMUM_RETRY = 30;
@@ -31,7 +26,7 @@ void WiFi_Functions::wifi_event_handler(void *arg, esp_event_base_t event_base, 
     case (WIFI_EVENT_STA_START):
     {
         TAG = "WIFI_EVENT_STA_START";
-        ESP_LOGD(TAG, "WIFI_EVENT_STA_START");
+        ESP_LOGD(TAG.data(), "WIFI_EVENT_STA_START");
         xEventGroupSetBits(WiFi_Functions::wifi_event_group, WiFi_Functions::WiFi_DISCONNECTED_BIT);
         xEventGroupSetBits(ui_event_group, UI_STATUSBAR_UPDATE_BIT);
     }
@@ -40,7 +35,7 @@ void WiFi_Functions::wifi_event_handler(void *arg, esp_event_base_t event_base, 
     case (WIFI_EVENT_STA_STOP):
     {
         TAG = "WIFI_EVENT_STA_STOP";
-        ESP_LOGD(TAG, "WIFI_EVENT_STA_STOP");
+        ESP_LOGD(TAG.data(), "WIFI_EVENT_STA_STOP");
         xEventGroupSetBits(WiFi_Functions::wifi_event_group, WiFi_Functions::WiFi_DISCONNECTED_BIT);
         xEventGroupClearBits(WiFi_Functions::wifi_event_group, WiFi_Functions::WIFI_CONNECTED_BIT);
         xEventGroupSetBits(ui_event_group, UI_STATUSBAR_UPDATE_BIT);
@@ -54,11 +49,11 @@ void WiFi_Functions::wifi_event_handler(void *arg, esp_event_base_t event_base, 
         xEventGroupSetBits(ui_event_group, UI_STATUSBAR_UPDATE_BIT);
 
         TAG = "WIFI_EVENT_STA_DISCONNECTED";
-        ESP_LOGD(TAG, "Connection to AP failed");
+        ESP_LOGD(TAG.data(), "Connection to AP failed");
 
         if (s_retry_num < EXAMPLE_ESP_MAXIMUM_RETRY)
         {
-            ESP_LOGD(TAG, "Retrying to connect to the AP");
+            ESP_LOGD(TAG.data(), "Retrying to connect to the AP");
             ESP_ERROR_CHECK_WITHOUT_ABORT(esp_wifi_connect());
             s_retry_num++;
         }
@@ -76,7 +71,7 @@ void WiFi_Functions::wifi_event_handler(void *arg, esp_event_base_t event_base, 
     case IP_EVENT_STA_GOT_IP:
     {
         TAG = "IP_EVENT_STA_GOT_IP";
-        ESP_LOGD(TAG, "IP_EVENT_STA_GOT_IP");
+        ESP_LOGD(TAG.data(), "IP_EVENT_STA_GOT_IP");
 
         ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
 
@@ -85,7 +80,7 @@ void WiFi_Functions::wifi_event_handler(void *arg, esp_event_base_t event_base, 
         char gateway_ip[32];
         sprintf(gateway_ip, IPSTR, IP2STR(&event->ip_info.gw));
 
-        ESP_LOGD(TAG, "Connected as: \"%s\" to \"%s\"", local_ip, gateway_ip);
+        ESP_LOGD(TAG.data(), "Connected as: \"%s\" to \"%s\"", local_ip, gateway_ip);
         s_retry_num = 0;
 
         xEventGroupClearBits(WiFi_Functions::wifi_event_group, WiFi_Functions::WiFi_DISCONNECTED_BIT);
@@ -97,7 +92,7 @@ void WiFi_Functions::wifi_event_handler(void *arg, esp_event_base_t event_base, 
 
     default:
     {
-        ESP_LOGW(TAG, "Unhandled WiFi event: %d", event_id);
+        ESP_LOGW(TAG.data(), "Unhandled WiFi event: %d", event_id);
     }
     break;
     }
@@ -281,26 +276,21 @@ WiFi_Functions::AP_Credentials *WiFi_Functions::loadCredentialsFromNVS(std::stri
                 bool mode = 0;
                 for (auto it : received_string)
                 {
-                    switch (mode)
-                    {
-                    case 0:
+                    if (mode == 0)
                     {
                         if (it == '~')
                         {
                             mode = 1;
-                            break;
+                            continue;;
                         }
                         else
                         {
                             ssid += it;
                         }
                     }
-                    break;
-                    case 1:
+                    else if (mode == 1)
+                    {
                         password += it;
-                        break;
-                    default:
-                        break;
                     }
                 }
 
@@ -381,7 +371,6 @@ esp_err_t WiFi_Functions::AP_Credentials::setCredentialToNVS(std::string wifi_ss
 
     return nvs_wrapper::setValueToKey(wifi_ssid, serializedData);
 }
-
 
 bool WiFi_Functions::connect_to_ap(AP_Credentials *connection)
 {
