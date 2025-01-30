@@ -369,6 +369,8 @@ esp_err_t WiFi_Functions::AP_Credentials::setCredentialToNVS(std::string wifi_ss
 
     return nvs_wrapper::setValueToKey(wifi_ssid, serializedData);
 }
+
+
 bool WiFi_Functions::connect_to_ap(AP_Credentials *connection)
 {
     constexpr const char *TAG = "WiFi_Functions::connect_to_ap";

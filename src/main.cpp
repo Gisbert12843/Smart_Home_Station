@@ -15,7 +15,7 @@ extern "C"
 
 void app_main()
 {
-    constexpr char *TAG = "app_main()";
+    constexpr const char * const TAG = "app_main()";
     esp_log_level_set("*", ESP_LOG_VERBOSE);
     helper_functions::delay(3000);
     nvs_wrapper::init();

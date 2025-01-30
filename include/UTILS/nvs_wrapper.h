@@ -43,7 +43,7 @@
 namespace nvs_wrapper
 {
     inline int entry_count = 0;
-    inline constexpr char *nvs_namespace_name = "NVS:";
+    static constexpr const char* const nvs_namespace_name = "NVS:";
     inline nvs_handle_t nvs_namespace_handle;
 
     void init();

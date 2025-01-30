@@ -179,7 +179,7 @@ void main_view(void *params)
 
         lock.~lock_guard();
 
-        EventBits_t bits = xEventGroupWaitBits(ui_event_group, UI_RELOAD_BIT, true, true, portMAX_DELAY);
+        xEventGroupWaitBits(ui_event_group, UI_RELOAD_BIT, true, true, portMAX_DELAY);
     }
     vTaskDelete(NULL);
 }
@@ -659,7 +659,7 @@ void show_add_new_client_overlay()
 
     lv_msgbox_add_close_button(msgbox);
 
-    lv_obj_t *title = lv_msgbox_add_title(msgbox, "Do you want to connect a new Client to the Broker?");
+    lv_msgbox_add_title(msgbox, "Do you want to connect a new Client to the Broker?");
 
     lv_obj_t *header = lv_msgbox_get_header(msgbox);
     lv_obj_set_height(header, 60); // Set height of the header container

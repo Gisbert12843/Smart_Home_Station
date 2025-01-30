@@ -4,10 +4,8 @@
 // #include <vector>
 #include <mutex>
 
-constexpr char *mqtt_server_t = "esp32-broker";
-constexpr char *MQTT_TOPIC = "MAIN_LED";
-constexpr int MQTT_STATUS_LED = GPIO_NUM_17;
-constexpr int LED_PIN = GPIO_NUM_23;
+static const int MQTT_STATUS_LED = GPIO_NUM_17;
+static const int LED_PIN = GPIO_NUM_23;
 
 extern void mqtt_subscriber(void *pvParameters);
 extern void mqtt_publisher(void *pvParameters);

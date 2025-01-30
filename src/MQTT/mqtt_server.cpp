@@ -521,7 +521,7 @@ static void fn(struct mg_connection *c, int ev, void *ev_data)
 void mqtt_server(void *pvParameters)
 {
 
-    char *TAG = "mqtt_server";
+    constexpr const char * const TAG = "mqtt_server";
     ESP_LOGI(TAG, "Start");
     struct mg_mgr mgr;
     mg_log_set(3); // Set to log level to LL_ERROR

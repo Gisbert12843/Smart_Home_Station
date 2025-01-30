@@ -58,7 +58,11 @@ void dpp_enrollee_event_cb(esp_supp_dpp_event_t event, void *data)
     }
 
     ESP_LOGI(TAG, "Saving AP Configuration: SSID: %s, Password: %s", (char *)s_dpp_wifi_config.sta.ssid, (char *)s_dpp_wifi_config.sta.password);
+
+    
     WiFi_Functions::AP_Credentials::saveAPConfiguration((char *)s_dpp_wifi_config.sta.ssid, (char *)s_dpp_wifi_config.sta.password);
+
+
     if (WiFi_Functions::connect_to_ap(WiFi_Functions::AP_Credentials::getInstance()))
     {
       ESP_LOGI(TAG, "Successfully connected to AP");
@@ -144,40 +148,6 @@ bool dpp_enrollee_init(void)
   ESP_LOGI(TAG, "dpp_enrollee_init called");
 
   esp_err_t err;
-
-  // ESP_LOGI(TAG, "Unregistering WIFI_EVENT handler");
-  // ESP_ERROR_CHECK_WITHOUT_ABORT(esp_event_handler_instance_unregister(WIFI_EVENT, ESP_EVENT_ANY_ID, &WiFi_Functions::wifi_event_handler_instance));
-
-  // ESP_LOGI(TAG, "Unregistering IP_EVENT handler");
-  // ESP_ERROR_CHECK_WITHOUT_ABORT(esp_event_handler_instance_unregister(IP_EVENT, ESP_EVENT_ANY_ID, &WiFi_Functions::ip_event_handler_instance));
-
-  // ESP_LOGI(TAG, "Stopping Wi-Fi");
-  // err = esp_wifi_stop();
-
-  // if (err != ESP_OK)
-  // {
-  //   ESP_LOGE(TAG, "Failed to stop Wi-Fi: %s", esp_err_to_name(err));
-  //   return false;
-  // }
-  // ESP_LOGI(TAG, "Wi-Fi stopped");
-
-  // vTaskDelay(pdMS_TO_TICKS(200));
-
-  // ESP_LOGI(TAG, "Registering WIFI_EVENT handler");
-  // err = (esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID, WiFi_Functions::wifi_event_handler, NULL, &WiFi_Functions::wifi_event_handler_instance));
-  // if (err != ESP_OK)
-  // {
-  //   ESP_LOGE(TAG, "Failed to register WIFI_EVENT handler: %s", esp_err_to_name(err));
-  //   return false;
-  // }
-
-  // ESP_LOGI(TAG, "Registering IP_EVENT handler");
-  // err = (esp_event_handler_instance_register(IP_EVENT, ESP_EVENT_ANY_ID, WiFi_Functions::wifi_event_handler, NULL, &WiFi_Functions::ip_event_handler_instance));
-  // if (err != ESP_OK)
-  // {
-  //   ESP_LOGE(TAG, "Failed to register IP_EVENT handler: %s", esp_err_to_name(err));
-  //   return false;
-  // }
 
   WiFi_Functions::init();
 

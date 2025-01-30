@@ -29,9 +29,9 @@
 #define esp_vfs_fat_spiflash_unmount esp_vfs_fat_spiflash_unmount_rw_wl
 #endif
 
-static const char *TAG = "MQTT_BROKER_SERVER";
+static constexpr const char *TAG = "MQTT_BROKER_SERVER";
 
-char *MOUNT_POINT = "/root";
+#define MOUNT_POINT "/root"
 
 extern std::recursive_mutex mqtt_server_mutex;
 
@@ -43,7 +43,9 @@ wl_handle_t mountFATFS(char *partition_label, char *mount_point)
     const esp_vfs_fat_mount_config_t mount_config = {
         .format_if_mount_failed = true,
         .max_files = 1,
-        .allocation_unit_size = CONFIG_WL_SECTOR_SIZE};
+        .allocation_unit_size = CONFIG_WL_SECTOR_SIZE,
+        .disk_status_check_enable = false,
+        .use_one_fat = false,};
     wl_handle_t s_wl_handle;
     esp_err_t err = esp_vfs_fat_spiflash_mount(mount_point, partition_label, &mount_config, &s_wl_handle);
     if (err != ESP_OK)
@@ -59,7 +61,7 @@ wl_handle_t mountFATFS(char *partition_label, char *mount_point)
 void initialise_mdns()
 {
 
-    constexpr char *TAG = "initialise_mdns";
+    constexpr const char *TAG = "initialise_mdns";
     // initialize mDNS
     ESP_ERROR_CHECK(mdns_init());
     // set mDNS hostname (required if you want to advertise services)
@@ -72,7 +74,7 @@ void initialise_mdns()
 
 void init_mongoose()
 {
-    constexpr char *TAG = "init_mongoose";
+    constexpr const char *TAG = "init_mongoose";
 
     ESP_LOGI(TAG, "ESP_WIFI_MODE_STA");
     esp_netif_ip_info_t ip_info;
@@ -83,8 +85,8 @@ void init_mongoose()
     ESP_LOGI(TAG, "Gateway    : " IPSTR, IP2STR(&ip_info.gw));
 
     // Initializing FAT file system
-    char *partition_label = "storage";
-    wl_handle_t s_wl_handle = mountFATFS(partition_label, MOUNT_POINT);
+    constexpr const char *partition_label = "storage";
+    wl_handle_t s_wl_handle = mountFATFS(const_cast<char*>(partition_label), const_cast<char*>(MOUNT_POINT));
     if (s_wl_handle < 0)
     {
         ESP_LOGE(TAG, "mountFATFS fail");

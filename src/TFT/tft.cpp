@@ -32,6 +32,27 @@
 #define I2C_MASTER_RX_BUF_DISABLE 0 /*!< I2C master doesn't need buffer */
 #define I2C_MASTER_TIMEOUT_MS 1000
 
+static esp_lcd_touch_handle_t tp; // LCD touch handle
+static lv_display_t *disp;
+
+static bool notify_lvgl_flush_ready(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_io_event_data_t *edata, void *user_ctx)
+{
+    lv_display_t *disp_driver = (lv_display_t *)user_ctx;
+    lv_disp_flush_ready(disp_driver);
+    return false;
+}
+
+static void lvgl_flush_cb(lv_display_t *drv, const lv_area_t *area, uint8_t *color_map)
+{
+    esp_lcd_panel_draw_bitmap((esp_lcd_panel_handle_t)lv_display_get_user_data(drv), area->x1, area->y1, area->x2 + 1, area->y2 + 1, color_map);
+    lv_disp_flush_ready(drv);
+}
+
+static void lvgl_tick_increment_cb(void *arg)
+{
+    lv_tick_inc(EXAMPLE_LVGL_TICK_PERIOD_MS);
+}
+
 void tft_init(void)
 {
     ESP_LOGI(TAG, "Turn off LCD backlight");
@@ -47,22 +68,25 @@ void tft_init(void)
 
     ESP_LOGI(TAG, "Initialize Intel 8080 bus");
     esp_lcd_i80_bus_handle_t i80_bus = NULL;
-    esp_lcd_i80_bus_config_t bus_config = {
-        .dc_gpio_num = EXAMPLE_PIN_NUM_DC,
-        .wr_gpio_num = EXAMPLE_PIN_NUM_PCLK,
-        .clk_src = LCD_CLK_SRC_DEFAULT,
-        .data_gpio_nums = {
-            EXAMPLE_PIN_NUM_DATA0,
-            EXAMPLE_PIN_NUM_DATA1,
-            EXAMPLE_PIN_NUM_DATA2,
-            EXAMPLE_PIN_NUM_DATA3,
-            EXAMPLE_PIN_NUM_DATA4,
-            EXAMPLE_PIN_NUM_DATA5,
-            EXAMPLE_PIN_NUM_DATA6,
-            EXAMPLE_PIN_NUM_DATA7},
-        .bus_width = EXAMPLE_LCD_I80_BUS_WIDTH,
-        .max_transfer_bytes = BUFFER_SIZE * sizeof(lv_color16_t),
-        .psram_trans_align = 64};
+    esp_lcd_i80_bus_config_t bus_config =
+        {
+            .dc_gpio_num = EXAMPLE_PIN_NUM_DC,
+            .wr_gpio_num = EXAMPLE_PIN_NUM_PCLK,
+            .clk_src = LCD_CLK_SRC_DEFAULT,
+            .data_gpio_nums = {
+                EXAMPLE_PIN_NUM_DATA0,
+                EXAMPLE_PIN_NUM_DATA1,
+                EXAMPLE_PIN_NUM_DATA2,
+                EXAMPLE_PIN_NUM_DATA3,
+                EXAMPLE_PIN_NUM_DATA4,
+                EXAMPLE_PIN_NUM_DATA5,
+                EXAMPLE_PIN_NUM_DATA6,
+                EXAMPLE_PIN_NUM_DATA7},
+            .bus_width = EXAMPLE_LCD_I80_BUS_WIDTH,
+            .max_transfer_bytes = BUFFER_SIZE * sizeof(lv_color16_t),
+            .psram_trans_align = 64,
+            .sram_trans_align = 32,
+        };
 
     ESP_ERROR_CHECK(esp_lcd_new_i80_bus(&bus_config, &i80_bus));
 
@@ -96,7 +120,7 @@ void tft_init(void)
     ESP_ERROR_CHECK(esp_lcd_panel_init(panel_handle));
     ESP_ERROR_CHECK(esp_lcd_panel_set_gap(panel_handle, 0, 0));
 
-    //These are here to rotate the screen to landscape mode, dont forget to alter the EXAMPLE_LCD_H_RES and EXAMPLE_LCD_V_RES to your new POV
+    // These are here to rotate the screen to landscape mode, dont forget to alter the EXAMPLE_LCD_H_RES and EXAMPLE_LCD_V_RES to your new POV
     ESP_ERROR_CHECK(esp_lcd_panel_swap_xy(panel_handle, true));
     ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, false, true));
 
@@ -126,7 +150,6 @@ void tft_init(void)
 
     ESP_LOGI(TAG, "Initialize LVGL library");
     lv_init();
-
 
     static lv_color16_t *buf1 = (lv_color16_t *)heap_caps_malloc(BUFFER_SIZE * sizeof(lv_color16_t), MALLOC_CAP_DMA);
     static lv_color16_t *buf2 = (lv_color16_t *)heap_caps_malloc(BUFFER_SIZE * sizeof(lv_color16_t), MALLOC_CAP_DMA);
@@ -163,7 +186,7 @@ void tft_init(void)
             .interrupt = 0,
         },
         .flags = {
-            //if altering these values do not lead to the expected results,
+            // if altering these values do not lead to the expected results,
             // try to alter the values read in your touchpad_read() function
             //(e.g. subtract the hor_max from the x value and multiply by -1)
             .swap_xy = 1,
