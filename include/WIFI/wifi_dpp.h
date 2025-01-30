@@ -8,7 +8,6 @@
 #include "esp_dpp.h"
 #include "esp_log.h"
 #include "nvs_flash.h"
-#include "wholeinclude.h"
 
 #include "ui/ui.h"
 #include "wifi/WiFi_Functions.h"

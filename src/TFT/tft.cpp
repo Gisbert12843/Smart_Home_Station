@@ -1,4 +1,9 @@
 #include "tft/tft.h"
+#include "esp_log.h"
+#include "esp_lcd_panel_io.h"
+#include "esp_lcd_panel_ops.h"
+#include "esp_timer.h"
+
 
 // static SemaphoreHandle_t lvgl_mux; // LVGL mutex
 

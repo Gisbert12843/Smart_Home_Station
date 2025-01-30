@@ -1,8 +1,12 @@
 #pragma once
-#include "wholeinclude.h"
 #include "mqtt_client.h"
 // #include <vector>
 #include <mutex>
+#include <string>
+#include <iostream>
+#include <vector>
+#include "driver/gpio.h"
+
 
 static const int MQTT_STATUS_LED = GPIO_NUM_17;
 static const int LED_PIN = GPIO_NUM_23;

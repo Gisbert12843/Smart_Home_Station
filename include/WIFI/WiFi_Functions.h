@@ -1,9 +1,16 @@
 #pragma once
 
-#include "wholeinclude.h"
 #include "utils/nvs_wrapper.h"
 
-#include "utils/global_flags.h"
+
+#include "esp_log.h"
+#include "esp_wifi.h"
+#include "esp_wifi_types.h"
+#include "freertos/event_groups.h"
+
+
+
+
 
 namespace WiFi_Functions
 {
@@ -140,7 +147,7 @@ namespace WiFi_Task
     inline void Task_Start_Fail_Bit_Listener(void *params)
     {
         WiFi_Functions::wifi_fail_bit_listener();
-        std::cout << "\n\n deleting Task_Start_Fail_Bit_Listener\n\n";
+       ESP_LOGI("Task_Start_Fail_Bit_Listener","\n\n deleting Task_Start_Fail_Bit_Listener\n\n");
         WiFi_Functions::Fail_Bit_Listener_Handle = NULL;
         vTaskDelete(NULL);
     }

@@ -1,7 +1,19 @@
 #include "wifi/WiFi_Functions.h"
 
+#include "iostream"
+#include "vector"
+
+#include "lwip/ip_addr.h"
+#include "esp_wifi_types.h"
+#include "lwip/dns.h"
+
+
 #include "ui/ui.h"
 #include "wifi/wifi_dpp.h"
+
+
+
+
 
 // Individually defined SSID and Password for each Module
 #define AP_SSID "ESP32_MQTT_SERVER"

@@ -1,4 +1,6 @@
 #include "utils/nvs_wrapper.h"
+#include "esp_log.h"
+
 
 void nvs_wrapper::init()
 {
@@ -152,6 +154,7 @@ esp_err_t nvs_wrapper::getValueFromKey(std::string key_name, std::string &retrie
 
 esp_err_t nvs_wrapper::getValueFromKey(std::string key_name, void *retrieved_value, size_t &data_length, bool use_prehashed_key)
 {
+    constexpr const char *TAG = "nvs_wrapper::getValueFromKey";
     esp_err_t err = nvs_open(nvs_namespace_name, NVS_READWRITE, &nvs_namespace_handle);
     if (err != ESP_OK)
     {
@@ -178,7 +181,7 @@ esp_err_t nvs_wrapper::getValueFromKey(std::string key_name, void *retrieved_val
 
     if (data_length > 0 && data_length != required_size)
     {
-        std::cout << "Error: Provided buffer is not ready for data." << std::endl;
+        ESP_LOGE(TAG,"Error: Provided buffer is not ready for data.");
         nvs_close(nvs_namespace_handle);
         return err;
     }
@@ -212,13 +215,13 @@ esp_err_t nvs_wrapper::getValueFromKey(std::string key_name, void *retrieved_val
 
         if (err != ESP_OK)
         {
-            std::cout << "Error retrieving blob data: " << esp_err_to_name(err) << std::endl;
+            ESP_LOGE(TAG,"Error: Couldn't get data from NVS");            
             nvs_close(nvs_namespace_handle);
             return err;
         }
         else
         {
-            std::cout << "Data got received from NVS\n";
+            ESP_LOGI(TAG,"Data got received from NVS\n");
         }
 
         // Close the NVS namespace
@@ -229,6 +232,7 @@ esp_err_t nvs_wrapper::getValueFromKey(std::string key_name, void *retrieved_val
 
 esp_err_t nvs_wrapper::getSizeFromKey(std::string key_name, size_t &data_length, bool use_prehashed_key)
 {
+    constexpr const char* TAG = "nvs_wrapper::getSizeFromKey";
     esp_err_t err = nvs_open(nvs_namespace_name, NVS_READWRITE, &nvs_namespace_handle);
     if (err != ESP_OK)
     {
@@ -251,7 +255,7 @@ esp_err_t nvs_wrapper::getSizeFromKey(std::string key_name, size_t &data_length,
     }
     else
     {
-        std::cout << "Blob Size: " << data_length << "\n";
+        ESP_LOGI(TAG,"Blob size: %i\n", data_length);
     }
     return err;
 }

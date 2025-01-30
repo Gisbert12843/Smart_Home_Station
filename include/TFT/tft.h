@@ -1,6 +1,4 @@
 #pragma once
-#include "wholeinclude.h"
-
 #include "ui/ui.h"
 
 #include "esp_lcd_touch_gt911.h"

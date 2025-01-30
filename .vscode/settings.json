@@ -84,6 +84,7 @@
     "bitset": "cpp",
     "regex": "cpp",
     "esp_lcd_io_i2c.h": "c",
-    "wifi_dpp.h": "c"
+    "wifi_dpp.h": "c",
+    "text_encoding": "cpp"
 }
 }

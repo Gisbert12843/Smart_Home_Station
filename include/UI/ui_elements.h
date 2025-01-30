@@ -1,8 +1,10 @@
 #pragma once
 
-#include "wholeinclude.h"
 #include "lvgl.h"
 #include "ui/color_palette.h"
+#include <string>
+#include <memory>
+#include <mutex>
 
 extern std::recursive_mutex lvgl_mutex;
 

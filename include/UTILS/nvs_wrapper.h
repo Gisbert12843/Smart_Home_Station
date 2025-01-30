@@ -1,5 +1,4 @@
 #pragma once
-#include <wholeinclude.h>
 #include "Crypto_Functions.h"
 #include "nvs_flash.h"
 #include "nvs.h"

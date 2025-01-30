@@ -2,7 +2,6 @@ extern "C"
 {
     void app_main(void);
 }
-#include "wholeinclude.h"
 #include "utils/nvs_wrapper.h"
 #include "wifi/WiFi_Functions.h"
 #include "utils/helper_functions.h"

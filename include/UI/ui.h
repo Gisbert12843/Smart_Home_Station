@@ -6,10 +6,10 @@
 
 #pragma once
 
-#include "wholeinclude.h"
 #include "ui/color_palette.h"
 #include <map>
 #include "ui/ui_elements.h"
+#include "esp_event.h"
 
 extern esp_event_loop_handle_t ui_event_loop;
 extern EventGroupHandle_t ui_event_group;
