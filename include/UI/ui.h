@@ -34,18 +34,16 @@ typedef struct
 class DPP_QR_Code
 {
 private:
-    inline static std::shared_ptr<UI_Popup> popup;
-    inline static bool initialized = false;
-    inline static std::recursive_mutex DPP_QR_Code_mutex;
-    inline static lv_timer_t *qr_code_timer = nullptr;
-    inline static lv_obj_t *qr_code_timer_label = nullptr;
-    inline static int qr_code_seconds_left = 120;
+    std::shared_ptr<UI_Popup> popup;
+    bool initialized = false;
+    std::recursive_mutex DPP_QR_Code_mutex = {};
+    lv_timer_t *qr_code_timer = nullptr;
+    lv_obj_t *qr_code_timer_label = nullptr;
+    int qr_code_seconds_left = 120;
 
-    // private con- and destructor
-    DPP_QR_Code();
-    ~DPP_QR_Code();
+    // use create_QR_Code_from_url() instead
+    DPP_QR_Code(std::shared_ptr<UI_Popup> popup) : popup(popup) {};
 
-    // Deleted copy constructor and assignment operators
     DPP_QR_Code(const DPP_QR_Code &) = delete;
     DPP_QR_Code &operator=(const DPP_QR_Code &) = delete;
     DPP_QR_Code(DPP_QR_Code &&) = delete;
@@ -54,17 +52,17 @@ private:
     static void qr_code_timer_cb(lv_timer_t *timer);
 
 public:
-    // Constructor, safe to call multiple times
+    ~DPP_QR_Code();
+
     // called by dpp_enrollee_event_cb() which in turn is invoked by esp_supp_dpp_init()
-    static void create_QR_Code_from_url(std::string url);
-    static std::recursive_mutex &get_mutex();
-    // Destructor, safe to call multiple times
-    static void delete_QR_Code_Overlay();
+    static std::shared_ptr<DPP_QR_Code> create_QR_Code_from_url(std::string url);
+    std::recursive_mutex &get_mutex();
 
-    static void start_timer(lv_obj_t *label = qr_code_timer_label, int seconds_to_run = 120);
 
-    static void show_QR_Code();
-    static void hide_QR_Code();
+    void start_timer(int seconds_to_ru = 120);
+
+    void show_QR_Code();
+    void hide_QR_Code();
 };
 
 // Define event IDs
