@@ -1,5 +1,6 @@
 #include "ui/ui.h"
 #include "ui/ui_elements.h"
+#include "UI/ui_elements_button.h"
 #include "mqtt/mqtt.h"
 #include "utils/helper_functions.h"
 #include "WIFI/WiFi_Functions.h"
@@ -279,16 +280,18 @@ void DPP_QR_Code::create_QR_Code_from_url(std::string url)
     lv_color_t qr_code_bg_color = lv_color_hex(COLOR_LIGHTGREY);
     lv_color_t qr_code_fg_color = lv_color_hex(COLOR_BLACK);
 
-    qr_screen_wrapper = lv_obj_create(lv_disp_get_scr_act(NULL)); // Create a full screen cover to display the QR code
-    lv_obj_set_size(qr_screen_wrapper, EXAMPLE_LCD_H_RES, EXAMPLE_LCD_V_RES);
-    lv_obj_add_flag(qr_screen_wrapper, LV_OBJ_FLAG_HIDDEN); // Hide the object for now
-    lv_obj_set_pos(qr_screen_wrapper, 0, 0);
-    lv_obj_set_style_bg_color(qr_screen_wrapper, lv_color_black(), 0);
-    lv_obj_set_style_bg_opa(qr_screen_wrapper, LV_OPA_70, 0); // Adjust opacity as needed
-    lv_obj_add_flag(qr_screen_wrapper, LV_OBJ_FLAG_CLICKABLE);
+    popup = UI_Popup::create_popup("QR_Code");
+
+    // qr_screen_wrapper = lv_obj_create(lv_disp_get_scr_act(NULL)); // Create a full screen cover to display the QR code
+    // lv_obj_set_size(qr_screen_wrapper, EXAMPLE_LCD_H_RES, EXAMPLE_LCD_V_RES);
+    // lv_obj_add_flag(qr_screen_wrapper, LV_OBJ_FLAG_HIDDEN); // Hide the object for now
+    // lv_obj_set_pos(qr_screen_wrapper, 0, 0);
+    // lv_obj_set_style_bg_color(qr_screen_wrapper, lv_color_black(), 0);
+    // lv_obj_set_style_bg_opa(qr_screen_wrapper, LV_OPA_70, 0); // Adjust opacity as needed
+    // lv_obj_add_flag(qr_screen_wrapper, LV_OBJ_FLAG_CLICKABLE);
 
     // Create the wrapper object for the QR code and the close button
-    lv_obj_t *qr_msg_box = lv_msgbox_create(qr_screen_wrapper);
+    lv_obj_t *qr_msg_box = lv_msgbox_create(popup->get_popup_obj());
     lv_obj_set_size(qr_msg_box, MSG_BOX_WIDTH, MSG_BOX_HEIGHT);
     lv_obj_center(qr_msg_box);
     lv_obj_set_pos(qr_msg_box, lv_obj_get_x(qr_msg_box), (EXAMPLE_LCD_V_RES - status_bar_height - MSG_BOX_HEIGHT) / 2);
@@ -374,17 +377,7 @@ void DPP_QR_Code::delete_QR_Code_Overlay()
     }
     else
         ESP_LOGI(TAG, "Timer was already deleted");
-    std::lock_guard<std::recursive_mutex> lock2(lvgl_mutex);
 
-    if (lv_obj_is_valid(qr_screen_wrapper))
-    {
-        lv_obj_delete(qr_screen_wrapper);
-        qr_screen_wrapper = nullptr;
-        ESP_LOGI(TAG, "Wrapper was deleted");
-    }
-    else
-        ESP_LOGI(TAG, "Wrapper was already deleted");
-    lock2.~lock_guard();
     qr_code_timer_label = nullptr;
 
     qr_code_seconds_left = 120;
@@ -393,12 +386,12 @@ void DPP_QR_Code::delete_QR_Code_Overlay()
 
 void DPP_QR_Code::show_QR_Code()
 {
-    lv_obj_clear_flag(qr_screen_wrapper, LV_OBJ_FLAG_HIDDEN);
+    popup.get()->show_popup();
 }
 
 void DPP_QR_Code::hide_QR_Code()
 {
-    lv_obj_add_flag(qr_screen_wrapper, LV_OBJ_FLAG_HIDDEN);
+    popup.get()->hide_popup();
 }
 
 void DPP_QR_Code::start_timer(lv_obj_t *label_to_update, int seconds_to_run)
@@ -418,17 +411,7 @@ void DPP_QR_Code::start_timer(lv_obj_t *label_to_update, int seconds_to_run)
 void DPP_QR_Code::qr_code_timer_cb(lv_timer_t *timer)
 {
     constexpr const char *TAG = "qr_code_timer_cb()";
-    ESP_LOGI(TAG, "qr_code_timer_cb called");
-    if (qr_code_timer == nullptr)
-    {
-        std::lock_guard<std::recursive_mutex> lock(lvgl_mutex);
-        lv_timer_delete(timer);
-        ESP_LOGE(TAG, "Timer is null. Returning.");
-        return;
-    }
     std::lock_guard<std::recursive_mutex> lock(DPP_QR_Code_mutex);
-    lv_obj_move_foreground(qr_screen_wrapper);
-    ESP_LOGI(TAG, "Moved qr_screen_wrapper to foreground");
 
     if (qr_code_timer == nullptr)
     {

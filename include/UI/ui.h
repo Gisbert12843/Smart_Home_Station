@@ -9,7 +9,9 @@
 #include "ui/color_palette.h"
 #include <map>
 #include "ui/ui_elements.h"
+#include "ui/ui_elements_popup.h"
 #include "esp_event.h"
+#include "memory"
 
 extern esp_event_loop_handle_t ui_event_loop;
 extern EventGroupHandle_t ui_event_group;
@@ -32,10 +34,10 @@ typedef struct
 class DPP_QR_Code
 {
 private:
+    inline static std::shared_ptr<UI_Popup> popup;
     inline static bool initialized = false;
     inline static std::recursive_mutex DPP_QR_Code_mutex;
     inline static lv_timer_t *qr_code_timer = nullptr;
-    inline static lv_obj_t *qr_screen_wrapper = nullptr;
     inline static lv_obj_t *qr_code_timer_label = nullptr;
     inline static int qr_code_seconds_left = 120;
 
