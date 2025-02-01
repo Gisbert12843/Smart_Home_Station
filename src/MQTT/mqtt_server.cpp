@@ -134,7 +134,7 @@ void check_timeouts()
             // mg_send(it->c, response, sizeof(response));
             // handle_mqtt_close(it->c);
         }
-        else if (duration > (KEEP_ALIVE_INTERVAL_IN_SECONDS * 0.75))
+        else if (duration > (KEEP_ALIVE_INTERVAL_IN_SECONDS * 0.5))
         {
             ESP_LOGI("check_timeouts", "Hence sending PINGREQ to CLIENT %p [%.*s].", it->c->fd, (int)it->cid.len, it->cid.buf);
             // mg_mqtt_send_header(it->c, MQTT_CMD_PINGREQ, 0, 0);
