@@ -18,7 +18,7 @@ static const char *s_listen_on = "mqtt://0.0.0.0:1883";
 
 #define MAX_TOPICS_COUNT 12
 #define KEEP_ALIVE_INTERVAL_IN_SECONDS 60
-#define CHECK_INTERVAL_IN_SECONDS 20
+#define CHECK_INTERVAL_IN_SECONDS 10
 
 std::vector<std::shared_ptr<mqtt_client>> s_clients = {};
 std::vector<std::shared_ptr<mqtt_sub>> s_subs = {};
@@ -134,7 +134,7 @@ void check_timeouts()
             // mg_send(it->c, response, sizeof(response));
             // handle_mqtt_close(it->c);
         }
-        else if (duration > (KEEP_ALIVE_INTERVAL_IN_SECONDS * 0.75))
+        else if (duration > (KEEP_ALIVE_INTERVAL_IN_SECONDS * 0.5))
         {
             ESP_LOGI("check_timeouts", "Hence sending PINGREQ to CLIENT %p [%.*s].", it->c->fd, (int)it->cid.len, it->cid.buf);
             // mg_mqtt_send_header(it->c, MQTT_CMD_PINGREQ, 0, 0);
