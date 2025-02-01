@@ -24,7 +24,7 @@ void app_main()
 
     tft_init();
 
-    xTaskCreate(lvgl_manager_bg_task, "lvgl_manager_bg_task", 2048 * 4, NULL, 22, NULL);
+    xTaskCreate(lvgl_manager_bg_task, "lvgl_manager_bg_task", 2048 * 3, NULL, 22, NULL);
 
     std::cout << "\n\n";
     helper_functions::delay(2000);
@@ -35,7 +35,7 @@ void app_main()
     {
         // ESP_ERROR_CHECK(nvs_wrapper::resetNVS());
         ESP_LOGI(TAG, "\nNo Credentials found on NVS, creating new ones");
-        xTaskCreate(dpp_task_start, "dpp_task_start", 2048 * 4, NULL, 22, NULL);
+        xTaskCreate(dpp_task_start, "dpp_task_start", 2048 * 2, NULL, 22, NULL);
     }
     else
     {

@@ -14,6 +14,7 @@
 #include "lv_ll.h"
 #include "lv_profiler.h"
 
+
 /*********************
  *      DEFINES
  *********************/
@@ -198,6 +199,7 @@ void lv_timer_delete(lv_timer_t * timer)
     state.timer_deleted = true;
 
     lv_free(timer);
+    timer = NULL;
 }
 
 void lv_timer_pause(lv_timer_t * timer)

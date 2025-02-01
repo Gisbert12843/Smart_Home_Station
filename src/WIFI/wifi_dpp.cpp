@@ -1,6 +1,6 @@
 #include "wifi/wifi_dpp.h"
 
-static std::shared_ptr<DPP_QR_Code> qr_code;
+static std::shared_ptr<DPP_QR_Code> *qr_code_ref = nullptr;
 
 void dpp_enrollee_event_cb(esp_supp_dpp_event_t event, void *data)
 {
@@ -15,7 +15,7 @@ void dpp_enrollee_event_cb(esp_supp_dpp_event_t event, void *data)
         if (data != NULL)
         {
 
-            qr_code = DPP_QR_Code::create_QR_Code_from_url((char *)data);
+            *qr_code_ref = DPP_QR_Code::create_QR_Code_from_url((char *)data);
 
             err = (esp_supp_dpp_start_listen());
             if (err != ESP_OK)
@@ -160,10 +160,14 @@ bool dpp_enrollee_init(void)
 
     ESP_LOGI(TAG, "Initializing DPP");
     err = esp_supp_dpp_init(dpp_enrollee_event_cb);
+
+    std::shared_ptr<DPP_QR_Code> dpp_qr_code;
+    qr_code_ref = &dpp_qr_code;
+
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "DPP init failed: %s", esp_err_to_name(err));
-        qr_code.get()->~DPP_QR_Code();
+        qr_code_ref = nullptr;
         return false;
     }
 
@@ -174,7 +178,7 @@ bool dpp_enrollee_init(void)
         ESP_LOGE(TAG, "DPP bootstrap failed: %s", esp_err_to_name(err));
 
         esp_supp_dpp_deinit();
-        qr_code.get()->~DPP_QR_Code();
+        qr_code_ref = nullptr;
         return false;
     }
 
@@ -183,6 +187,7 @@ bool dpp_enrollee_init(void)
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "Wi-Fi start failed");
+        qr_code_ref = nullptr;
         esp_supp_dpp_deinit();
         return false;
     }
@@ -193,49 +198,52 @@ bool dpp_enrollee_init(void)
                                            pdFALSE,
                                            pdFALSE,
                                            pdMS_TO_TICKS(200000)); // Adding a timeout to prevent indefinite waiting
+    std::lock_guard<std::recursive_mutex> lock(dpp_qr_code.get()->get_mutex());
 
-    std::lock_guard<std::recursive_mutex> lock(qr_code.get()->get_mutex());
     ESP_LOGI(TAG, "Deinitializing DPP");
     esp_supp_dpp_deinit();
 
     if (bits & WiFi_Functions::WIFI_CONNECTED_BIT)
     {
         ESP_LOGI(TAG, "Connected to AP");
-        qr_code.get()->~DPP_QR_Code();
         ESP_LOGI(TAG, "dpp_enrollee_init finished");
+        qr_code_ref = nullptr;
+
         return true;
     }
     else if (bits & WiFi_Functions::DPP_AUTH_FAIL_BIT)
     {
         ESP_LOGW(TAG, "DPP Auth failed");
         xEventGroupClearBits(WiFi_Functions::wifi_event_group, WiFi_Functions::DPP_AUTH_FAIL_BIT);
-        qr_code.get()->~DPP_QR_Code();
-        ESP_LOGI(TAG, "dpp_enrollee_init finished");
+        qr_code_ref = nullptr;
+
         return false;
     }
     else if (bits & WiFi_Functions::DPP_TIMEOUT_BIT)
     {
         ESP_LOGW(TAG, "DPP Timed out");
         xEventGroupClearBits(WiFi_Functions::wifi_event_group, WiFi_Functions::DPP_TIMEOUT_BIT);
-        qr_code.get()->~DPP_QR_Code();
-        ESP_LOGI(TAG, "dpp_enrollee_init finished");
+        qr_code_ref = nullptr;
+
         return false;
     }
     else if (bits & WiFi_Functions::DPP_ERROR_BIT)
     {
         ESP_LOGE(TAG, "DPP Error");
         xEventGroupClearBits(WiFi_Functions::wifi_event_group, WiFi_Functions::DPP_ERROR_BIT);
-        qr_code.get()->~DPP_QR_Code();
-        ESP_LOGI(TAG, "dpp_enrollee_init finished");
+        qr_code_ref = nullptr;
+
         return false;
     }
     else
     {
         ESP_LOGE(TAG, "Unexpected Timeout/Error");
-        qr_code.get()->~DPP_QR_Code();
-        ESP_LOGI(TAG, "dpp_enrollee_init finished");
+        qr_code_ref = nullptr;
+
         return false;
     }
+    qr_code_ref = nullptr;
+    return false;
 }
 
 // Task to start DPP Enrollee

@@ -246,15 +246,14 @@ std::shared_ptr<UI_Element> ui_elements::get_element(std::string element_id)
 // DPP
 DPP_QR_Code::~DPP_QR_Code()
 {
-    std::lock_guard<std::recursive_mutex> lock(DPP_QR_Code_mutex);
     ESP_LOGI("DPP_QR_Code()", "Despawning QR_Code Overlay");
-    lv_timer_delete(qr_code_timer);
+    delete_timer();
 }
 
 std::shared_ptr<DPP_QR_Code> DPP_QR_Code::create_QR_Code_from_url(std::string url)
 {
     std::lock_guard<std::recursive_mutex> lock2(lvgl_mutex);
-    
+
     std::shared_ptr<DPP_QR_Code> qr_code = std::shared_ptr<DPP_QR_Code>(new DPP_QR_Code(UI_Popup::create_popup("QR_Code")));
 
     constexpr const char *TAG = "update_QR_Code_from_url()";
@@ -266,7 +265,6 @@ std::shared_ptr<DPP_QR_Code> DPP_QR_Code::create_QR_Code_from_url(std::string ur
 
     lv_color_t qr_code_bg_color = lv_color_hex(COLOR_LIGHTGREY);
     lv_color_t qr_code_fg_color = lv_color_hex(COLOR_BLACK);
-
 
     // qr_screen_wrapper = lv_obj_create(lv_disp_get_scr_act(NULL)); // Create a full screen cover to display the QR code
     // lv_obj_set_size(qr_screen_wrapper, EXAMPLE_LCD_H_RES, EXAMPLE_LCD_V_RES);
@@ -320,15 +318,27 @@ std::shared_ptr<DPP_QR_Code> DPP_QR_Code::create_QR_Code_from_url(std::string ur
     }
 
     lv_obj_center(qr);
+    qr_code.get()->qr_code_seconds_left = 20-1;
 
     qr_code.get()->qr_code_timer_label = lv_label_create(content);
     lv_label_set_text(qr_code.get()->qr_code_timer_label, (std::to_string(qr_code.get()->qr_code_seconds_left) + " seconds remaining").c_str());
     lv_obj_set_size(qr_code.get()->qr_code_timer_label, 250, 20);
     // lv_obj_set_align(qr_code_timer_label, LV_ALIGN_CENTER);
 
-    qr_code.get()->start_timer();
+    qr_code.get()->start_timer(20);
     qr_code.get()->show_QR_Code();
+
+    return qr_code;
 }
+
+// void DPP_QR_Code::despawn_QR_Code()
+// {
+//     std::lock_guard<std::recursive_mutex> lock(DPP_QR_Code_mutex);
+//     ESP_LOGI("DPP_QR_Code()", "Despawning QR_Code Overlay");
+//     if(qr_code_timer != nullptr)
+//         lv_timer_delete(qr_code_timer);
+//     popup.get()->~UI_Popup();
+// }
 
 std::recursive_mutex &DPP_QR_Code::get_mutex()
 {
@@ -352,12 +362,26 @@ void DPP_QR_Code::start_timer(int seconds_to_run)
     std::lock_guard<std::recursive_mutex> lock2(lvgl_mutex);
     if (qr_code_timer != nullptr)
     {
+        ESP_LOGI("start_timer()", "Deleting old timer");
         lv_timer_delete(qr_code_timer);
         qr_code_timer = nullptr;
     }
-
+    ESP_LOGI("start_timer()", "Starting new timer");
     qr_code_timer = lv_timer_create(qr_code_timer_cb, 1000, this);
+    lv_timer_set_repeat_count(qr_code_timer, seconds_to_run);
+    lv_timer_set_auto_delete(qr_code_timer, true);
     // lv_timer_set_repeat_count(qr_code_timer, 1 + seconds_to_run); // 120 seconds + 1 second for the last call at 0 seconds
+}
+void DPP_QR_Code::delete_timer()
+{
+    std::lock_guard<std::recursive_mutex> lock(DPP_QR_Code_mutex);
+    std::lock_guard<std::recursive_mutex> lock2(lvgl_mutex);
+    if (qr_code_timer != NULL)
+    {
+        ESP_LOGI("delete_timer()", "Deleting timer");
+        lv_timer_delete(qr_code_timer);
+        qr_code_timer = NULL;
+    }
 }
 
 void DPP_QR_Code::qr_code_timer_cb(lv_timer_t *timer)
@@ -387,16 +411,7 @@ void DPP_QR_Code::qr_code_timer_cb(lv_timer_t *timer)
 
     ESP_LOGD(TAG, "Updating timer label to %d seconds remaining", qr_code->qr_code_seconds_left);
 
-    std::lock_guard<std::recursive_mutex> lock2(lvgl_mutex);
-
     std::string remaining_text = std::to_string(qr_code->qr_code_seconds_left) + " seconds remaining";
-    if (!lv_obj_is_valid(qr_code->qr_code_timer_label))
-    {
-        ESP_LOGE(TAG, "but Label is no longer valid. Pausing timer.");
-        qr_code->qr_code_timer = nullptr;
-        xEventGroupSetBits(WiFi_Functions::wifi_event_group, WiFi_Functions::DPP_AUTH_FAIL_BIT);
-        return;
-    }
     lv_label_set_text(qr_code->qr_code_timer_label, remaining_text.c_str());
     ESP_LOGI(TAG, "qr_code_timer_cb finished");
 }
@@ -460,7 +475,7 @@ void dpp_wifi_renew_button_cb(lv_event_t *e)
         lv_obj_t *scr_cover = (lv_obj_t *)lv_event_get_user_data(e);
         // Log and delete the scr_cover object
         ESP_LOGI("dpp_msgbox_yes_cb()", "YES Button Clicked");
-        xTaskCreate(dpp_task_start, "dpp_task_start", 2048 * 4, NULL, 21, NULL);
+        xTaskCreate(dpp_task_start, "dpp_task_start", 2048 * 2, NULL, 21, NULL);
         lv_obj_del_async(scr_cover);
     };
 

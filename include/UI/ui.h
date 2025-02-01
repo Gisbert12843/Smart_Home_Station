@@ -37,9 +37,9 @@ private:
     std::shared_ptr<UI_Popup> popup;
     bool initialized = false;
     std::recursive_mutex DPP_QR_Code_mutex = {};
-    lv_timer_t *qr_code_timer = nullptr;
+    lv_timer_t *qr_code_timer = NULL; //NULL for legacy lvgl reasons
     lv_obj_t *qr_code_timer_label = nullptr;
-    int qr_code_seconds_left = 120;
+    int qr_code_seconds_left = 20;
 
     // use create_QR_Code_from_url() instead
     DPP_QR_Code(std::shared_ptr<UI_Popup> popup) : popup(popup) {};
@@ -54,12 +54,17 @@ private:
 public:
     ~DPP_QR_Code();
 
+
+
     // called by dpp_enrollee_event_cb() which in turn is invoked by esp_supp_dpp_init()
     static std::shared_ptr<DPP_QR_Code> create_QR_Code_from_url(std::string url);
+    // void despawn_QR_Code();
+
     std::recursive_mutex &get_mutex();
 
 
-    void start_timer(int seconds_to_ru = 120);
+    void start_timer(int seconds_to_run);
+    void delete_timer();
 
     void show_QR_Code();
     void hide_QR_Code();
