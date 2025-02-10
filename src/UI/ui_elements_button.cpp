@@ -4,7 +4,7 @@
 #include "esp_log.h"
 #include "mqtt/mqtt.h"
 
-void UI_Button_event_handler(lv_event_t *e)
+static void UI_Button_event_handler(lv_event_t *e)
 {
     std::lock_guard<std::recursive_mutex> lock(lvgl_mutex);
 
@@ -138,12 +138,4 @@ std::shared_ptr<UI_Button> UI_Button::create_button(lv_obj_t *parent, const std:
     auto new_button = std::shared_ptr<UI_Button>(new UI_Button(button, circle, label, topic, state));
     lv_obj_add_event_cb(button, UI_Button_event_handler, LV_EVENT_CLICKED, &(*new_button));
     return new_button;
-}
-
-std::shared_ptr<lv_obj_t *> create_new_global_overlay()
-{
-    std::lock_guard<std::recursive_mutex> lock(lvgl_mutex);
-    lv_obj_t *overlay = lv_obj_create(lv_layer_top());
-    lv_obj_set_size(overlay, EXAMPLE_LCD_H_RES, EXAMPLE_LCD_V_RES);
-    return std::make_shared<lv_obj_t *>(overlay);
 }

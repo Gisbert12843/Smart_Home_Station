@@ -20,7 +20,7 @@ extern EventBits_t UI_RELOAD_BIT;
 extern std::recursive_mutex lvgl_mutex;
 
 // Define an event base
-ESP_EVENT_DEFINE_BASE(CUSTOM_EVENT_BASE);
+inline ESP_EVENT_DEFINE_BASE(CUSTOM_EVENT_BASE);
 
 typedef struct
 {

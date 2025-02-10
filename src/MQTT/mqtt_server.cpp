@@ -34,17 +34,15 @@ std::recursive_mutex mqtt_server_mutex;
 // static heap_trace_record_t trace_record[NUM_RECORDS]; // This buffer must be in internal RAM
 
 static size_t mg_mqtt_next_topic(struct mg_mqtt_message *msg, struct mg_str *topic, uint8_t *qos, size_t pos);
-size_t mg_mqtt_next_sub(struct mg_mqtt_message *msg, struct mg_str *topic, uint8_t *qos, size_t pos);
-size_t mg_mqtt_next_unsub(struct mg_mqtt_message *msg, struct mg_str *topic, size_t pos);
-void _mg_mqtt_dump(char *tag, struct mg_mqtt_message *msg);
-int _mg_mqtt_parse_header(struct mg_mqtt_message *msg, struct mg_str *client, struct mg_str *topic, struct mg_str *payload, uint8_t *qos, uint8_t *retain);
-int isasciis(char *buffer, int length);
-void handle_mqtt_connect(struct mg_connection *c, struct mg_mqtt_message *mm);
-void handle_mqtt_subscribe(struct mg_connection *c, struct mg_mqtt_message *mm);
-void handle_mqtt_unsubscribe(struct mg_connection *c, struct mg_mqtt_message *mm);
-void handle_mqtt_publish(struct mg_connection *c, struct mg_mqtt_message *mm);
-void handle_mqtt_pingreq(struct mg_connection *c);
-void handle_mqtt_close(struct mg_connection *c);
+static size_t mg_mqtt_next_sub(struct mg_mqtt_message *msg, struct mg_str *topic, uint8_t *qos, size_t pos);
+static size_t mg_mqtt_next_unsub(struct mg_mqtt_message *msg, struct mg_str *topic, size_t pos);
+static int _mg_mqtt_parse_header(struct mg_mqtt_message *msg, struct mg_str *client, struct mg_str *topic, struct mg_str *payload, uint8_t *qos, uint8_t *retain);
+static void handle_mqtt_connect(struct mg_connection *c, struct mg_mqtt_message *mm);
+static void handle_mqtt_subscribe(struct mg_connection *c, struct mg_mqtt_message *mm);
+static void handle_mqtt_unsubscribe(struct mg_connection *c, struct mg_mqtt_message *mm);
+static void handle_mqtt_publish(struct mg_connection *c, struct mg_mqtt_message *mm);
+static void handle_mqtt_pingreq(struct mg_connection *c);
+static void handle_mqtt_close(struct mg_connection *c);
 
 static size_t mg_mqtt_next_topic(struct mg_mqtt_message *msg,
                                  struct mg_str *topic, uint8_t *qos,
@@ -65,14 +63,14 @@ static size_t mg_mqtt_next_topic(struct mg_mqtt_message *msg,
     return new_pos;
 }
 
-size_t mg_mqtt_next_sub(struct mg_mqtt_message *msg, struct mg_str *topic,
+static size_t mg_mqtt_next_sub(struct mg_mqtt_message *msg, struct mg_str *topic,
                         uint8_t *qos, size_t pos)
 {
     uint8_t tmp;
     return mg_mqtt_next_topic(msg, topic, qos == NULL ? &tmp : qos, pos);
 }
 
-size_t mg_mqtt_next_unsub(struct mg_mqtt_message *msg, struct mg_str *topic,
+static size_t mg_mqtt_next_unsub(struct mg_mqtt_message *msg, struct mg_str *topic,
                           size_t pos)
 {
     return mg_mqtt_next_topic(msg, topic, NULL, pos);
@@ -82,7 +80,7 @@ size_t mg_mqtt_next_unsub(struct mg_mqtt_message *msg, struct mg_str *topic,
 #define WILL_QOS 0x18
 #define WILL_RETAIN 0x20
 
-int _mg_mqtt_parse_header(struct mg_mqtt_message *msg, struct mg_str *client, struct mg_str *topic, struct mg_str *payload, uint8_t *qos, uint8_t *retain)
+static int _mg_mqtt_parse_header(struct mg_mqtt_message *msg, struct mg_str *client, struct mg_str *topic, struct mg_str *payload, uint8_t *qos, uint8_t *retain)
 {
     client->len = 0;
     topic->len = 0;
@@ -113,7 +111,7 @@ int _mg_mqtt_parse_header(struct mg_mqtt_message *msg, struct mg_str *client, st
     return 1;
 }
 
-void check_timeouts()
+static void check_timeouts()
 {
     std::lock_guard<std::recursive_mutex> lock(mqtt_server_mutex);
 
@@ -144,7 +142,7 @@ void check_timeouts()
     }
 }
 
-void update_last_seen(mg_connection *c)
+static void update_last_seen(mg_connection *c)
 {
     for (auto client = s_clients.begin(); client != s_clients.end(); client++)
     {
@@ -157,7 +155,7 @@ void update_last_seen(mg_connection *c)
     }
 }
 
-std::shared_ptr<mqtt_client> find_connection(mg_connection *c)
+static std::shared_ptr<mqtt_client> find_connection(mg_connection *c)
 {
     for (auto client = s_clients.begin(); client != s_clients.end(); client++)
     {
@@ -169,7 +167,7 @@ std::shared_ptr<mqtt_client> find_connection(mg_connection *c)
     return NULL;
 }
 
-void handle_mqtt_connect(struct mg_connection *c, struct mg_mqtt_message *mm)
+static void handle_mqtt_connect(struct mg_connection *c, struct mg_mqtt_message *mm)
 {
     update_last_seen(c);
 
@@ -234,7 +232,7 @@ void handle_mqtt_connect(struct mg_connection *c, struct mg_mqtt_message *mm)
     xEventGroupSetBits(ui_event_group, UI_STATUSBAR_UPDATE_BIT);
 }
 
-void handle_mqtt_subscribe(struct mg_connection *c, struct mg_mqtt_message *mm)
+static void handle_mqtt_subscribe(struct mg_connection *c, struct mg_mqtt_message *mm)
 {
     bool reload_flag = false;
     ESP_LOGI("handle_mqtt_subscribe", "MQTT_CMD_SUBSCRIBE");
@@ -302,7 +300,7 @@ void handle_mqtt_subscribe(struct mg_connection *c, struct mg_mqtt_message *mm)
     }
 }
 
-void handle_mqtt_unsubscribe(struct mg_connection *c, struct mg_mqtt_message *mm)
+static void handle_mqtt_unsubscribe(struct mg_connection *c, struct mg_mqtt_message *mm)
 {
     bool reload_flag = false;
     ESP_LOGI("handle_mqtt_unsubscribe", "MQTT_CMD_UNSUBSCRIBE");
@@ -345,7 +343,7 @@ void handle_mqtt_unsubscribe(struct mg_connection *c, struct mg_mqtt_message *mm
     }
 }
 
-void handle_mqtt_publish(struct mg_connection *c, struct mg_mqtt_message *mm)
+static void handle_mqtt_publish(struct mg_connection *c, struct mg_mqtt_message *mm)
 {
     ESP_LOGI("handle_mqtt_publish", "PUBLISH");
     MG_INFO(("PUB %p [%.*s] -> [%.*s]", c->fd, (int)mm->data.len,
@@ -374,7 +372,7 @@ void handle_mqtt_publish(struct mg_connection *c, struct mg_mqtt_message *mm)
     }
 }
 
-void handle_mqtt_pingreq(struct mg_connection *c)
+static void handle_mqtt_pingreq(struct mg_connection *c)
 {
     auto client = find_connection(c);
 
@@ -397,7 +395,7 @@ void handle_mqtt_pingreq(struct mg_connection *c)
     mg_mqtt_pong(c);
 }
 
-void handle_mqtt_close(struct mg_connection *c)
+static void handle_mqtt_close(struct mg_connection *c)
 {
     ESP_LOGI("handle_mqtt_close", "MG_EV_CLOSE %p", c->fd);
 

@@ -1,7 +1,6 @@
 #pragma once
 #include "ui_elements.h"
 
-void UI_Button_event_handler(lv_event_t *e);
 
 // represents a toggle button for each MQTT topic
 class UI_Button : public UI_Element

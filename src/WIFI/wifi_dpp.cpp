@@ -2,7 +2,11 @@
 
 static std::shared_ptr<DPP_QR_Code> *qr_code_ref = nullptr;
 
-void dpp_enrollee_event_cb(esp_supp_dpp_event_t event, void *data)
+static void dpp_enrollee_event_cb(esp_supp_dpp_event_t event, void *data);
+static esp_err_t dpp_enrollee_bootstrap(void);
+static bool dpp_enrollee_init(void);
+
+static void dpp_enrollee_event_cb(esp_supp_dpp_event_t event, void *data)
 {
     constexpr const char *TAG = "dpp_enrollee_event_cb()";
     esp_err_t err;
@@ -103,7 +107,7 @@ void dpp_enrollee_event_cb(esp_supp_dpp_event_t event, void *data)
     }
 }
 
-esp_err_t dpp_enrollee_bootstrap(void)
+static esp_err_t dpp_enrollee_bootstrap(void)
 {
     constexpr const char *TAG = "dpp_enrollee_bootstrap()";
     //ESP_LOGI(TAG, "dpp_enrollee_bootstrap called");
@@ -141,7 +145,7 @@ esp_err_t dpp_enrollee_bootstrap(void)
     return ret;
 }
 
-bool dpp_enrollee_init(void)
+static bool dpp_enrollee_init(void)
 {
     constexpr const char *TAG = "dpp_enrollee_init()";
     //ESP_LOGI(TAG, "dpp_enrollee_init called");

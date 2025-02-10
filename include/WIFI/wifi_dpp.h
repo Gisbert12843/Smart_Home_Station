@@ -35,10 +35,5 @@ inline int s_retry_num = 0;
 
 #define WIFI_MAX_RETRY_NUM 3
 
-void dpp_enrollee_event_cb(esp_supp_dpp_event_t event, void *data);
-
-esp_err_t dpp_enrollee_bootstrap(void);
-
-bool dpp_enrollee_init(void);
 // Task to start DPP Enrollee
 void dpp_task_start(void *params);
