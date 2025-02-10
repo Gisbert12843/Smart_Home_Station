@@ -574,7 +574,7 @@ void WiFi_Functions::wifi_fail_bit_listener()
 
         //ESP_LOGD(TAG, "Previous AP not available after 10 attempts.");
         // Start DPP here
-        dpp_enrollee_init();
+        xTaskCreate(dpp_task_start, "dpp_task_start", 2048 * 2, NULL, 22, NULL);
     }
 }
 

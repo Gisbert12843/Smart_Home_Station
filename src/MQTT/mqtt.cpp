@@ -35,7 +35,7 @@ static constexpr const char *TAG = "MQTT_BROKER_SERVER";
 
 extern std::recursive_mutex mqtt_server_mutex;
 
-wl_handle_t mountFATFS(char *partition_label, char *mount_point)
+static wl_handle_t mountFATFS(char *partition_label, char *mount_point)
 {
     ESP_LOGI(TAG, "Initializing FAT file system");
     // To mount device we need name of device partition, define base_path
