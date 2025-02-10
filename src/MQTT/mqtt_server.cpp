@@ -18,7 +18,7 @@ static const char *s_listen_on = "mqtt://0.0.0.0:1883";
 
 #define MAX_TOPICS_COUNT 12
 #define KEEP_ALIVE_INTERVAL_IN_SECONDS 60
-#define CHECK_INTERVAL_IN_SECONDS 20
+#define CHECK_INTERVAL_IN_SECONDS 10
 
 std::vector<std::shared_ptr<mqtt_client>> s_clients = {};
 std::vector<std::shared_ptr<mqtt_sub>> s_subs = {};
