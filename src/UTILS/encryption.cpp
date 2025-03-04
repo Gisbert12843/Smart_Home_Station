@@ -1,4 +1,5 @@
-#include "utils/Crypto_Functions.h"
+#include "utils/encryption.h"
+
 
 // DJB2 Hash Function
 unsigned long hash(unsigned char *str)
@@ -13,7 +14,7 @@ unsigned long hash(unsigned char *str)
     return hash;
 }
 
-std::string Crypto_Functions::hash_to_length(const std::string ssid, int target_length)
+std::string hash_functions::hash_to_length(const std::string ssid, int target_length)
 {
     unsigned long hashedValue = hash((unsigned char *)(ssid.c_str()));
 
@@ -24,3 +25,4 @@ std::string Crypto_Functions::hash_to_length(const std::string ssid, int target_
 
     return target_string;
 }
+

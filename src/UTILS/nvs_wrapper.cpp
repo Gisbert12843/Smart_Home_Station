@@ -55,20 +55,20 @@ bool nvs_wrapper::checkKeyExistence(std::string key_name)
         case 0:
         {
             size_t required_size = 0;
-            err = nvs_get_blob(nvs_namespace_handle, Crypto_Functions::hash_to_length(key_name).c_str(), NULL, &required_size);
+            err = nvs_get_blob(nvs_namespace_handle, hash_functions::hash_to_length(key_name).c_str(), NULL, &required_size);
         }
         break;
         case 1:
         {
             int32_t *temp = new int32_t;
-            err = nvs_get_i32(nvs_namespace_handle, Crypto_Functions::hash_to_length(key_name).c_str(), temp);
+            err = nvs_get_i32(nvs_namespace_handle, hash_functions::hash_to_length(key_name).c_str(), temp);
             delete (temp);
         }
         break;
         case 2:
         {
             size_t required_size = 0;
-            err = nvs_get_str(nvs_namespace_handle, Crypto_Functions::hash_to_length(key_name).c_str(), NULL, &required_size);
+            err = nvs_get_str(nvs_namespace_handle, hash_functions::hash_to_length(key_name).c_str(), NULL, &required_size);
         }
         break;
 
@@ -102,7 +102,7 @@ esp_err_t nvs_wrapper::getValueFromKey(std::string key_name, int32_t &retrieved_
     if (use_prehashed_key)
         err = nvs_get_i32(nvs_namespace_handle, key_name.c_str(), &retrieved_value);
     else
-        err = nvs_get_i32(nvs_namespace_handle, Crypto_Functions::hash_to_length(key_name).c_str(), &retrieved_value);
+        err = nvs_get_i32(nvs_namespace_handle, hash_functions::hash_to_length(key_name).c_str(), &retrieved_value);
 
     {
         ESP_ERROR_CHECK_WITHOUT_ABORT(err);
@@ -113,7 +113,6 @@ esp_err_t nvs_wrapper::getValueFromKey(std::string key_name, int32_t &retrieved_
 
 // opens namespace_handle
 // nvs_get_str
-//
 
 esp_err_t nvs_wrapper::getValueFromKey(std::string key_name, std::string &retrieved_value, bool use_prehashed_key)
 {
@@ -128,7 +127,7 @@ esp_err_t nvs_wrapper::getValueFromKey(std::string key_name, std::string &retrie
     if (use_prehashed_key)
         err = nvs_get_str(nvs_namespace_handle, (key_name).c_str(), NULL, &required_size);
     else
-        err = nvs_get_str(nvs_namespace_handle, Crypto_Functions::hash_to_length(key_name).c_str(), NULL, &required_size);
+        err = nvs_get_str(nvs_namespace_handle, hash_functions::hash_to_length(key_name).c_str(), NULL, &required_size);
 
     if (err != ESP_OK)
     {
@@ -145,7 +144,7 @@ esp_err_t nvs_wrapper::getValueFromKey(std::string key_name, std::string &retrie
     if (use_prehashed_key)
         err = nvs_get_str(nvs_namespace_handle, (key_name).c_str(), retrieved_value.data(), &required_size);
     else
-        err = nvs_get_str(nvs_namespace_handle, Crypto_Functions::hash_to_length(key_name).c_str(), retrieved_value.data(), &required_size);
+        err = nvs_get_str(nvs_namespace_handle, hash_functions::hash_to_length(key_name).c_str(), retrieved_value.data(), &required_size);
 
     ESP_ERROR_CHECK_WITHOUT_ABORT(err);
     nvs_close(nvs_namespace_handle);
@@ -168,7 +167,7 @@ esp_err_t nvs_wrapper::getValueFromKey(std::string key_name, void *retrieved_val
     if (use_prehashed_key)
         err = nvs_get_blob(nvs_namespace_handle, (key_name).c_str(), NULL, &required_size);
     else
-        err = nvs_get_blob(nvs_namespace_handle, Crypto_Functions::hash_to_length(key_name).c_str(), NULL, &required_size);
+        err = nvs_get_blob(nvs_namespace_handle, hash_functions::hash_to_length(key_name).c_str(), NULL, &required_size);
 
     if (err != ESP_OK)
     {
@@ -193,7 +192,7 @@ esp_err_t nvs_wrapper::getValueFromKey(std::string key_name, void *retrieved_val
         if (use_prehashed_key)
             err = nvs_get_blob(nvs_namespace_handle, (key_name).c_str(), retrieved_value, &required_size);
         else
-            err = nvs_get_blob(nvs_namespace_handle, Crypto_Functions::hash_to_length(key_name).c_str(), retrieved_value, &required_size);
+            err = nvs_get_blob(nvs_namespace_handle, hash_functions::hash_to_length(key_name).c_str(), retrieved_value, &required_size);
 
         if (err != ESP_OK)
         {
@@ -211,7 +210,7 @@ esp_err_t nvs_wrapper::getValueFromKey(std::string key_name, void *retrieved_val
     }
     else
     {
-        err = nvs_get_blob(nvs_namespace_handle, Crypto_Functions::hash_to_length(key_name).c_str(), retrieved_value, &data_length);
+        err = nvs_get_blob(nvs_namespace_handle, hash_functions::hash_to_length(key_name).c_str(), retrieved_value, &data_length);
 
         if (err != ESP_OK)
         {
@@ -243,7 +242,7 @@ esp_err_t nvs_wrapper::getSizeFromKey(std::string key_name, size_t &data_length,
     if (use_prehashed_key)
         err = nvs_get_blob(nvs_namespace_handle, (key_name).c_str(), NULL, &data_length);
     else
-        err = nvs_get_blob(nvs_namespace_handle, Crypto_Functions::hash_to_length(key_name).c_str(), NULL, &data_length);
+        err = nvs_get_blob(nvs_namespace_handle, hash_functions::hash_to_length(key_name).c_str(), NULL, &data_length);
 
     if (err != ESP_OK)
     {
@@ -269,7 +268,7 @@ esp_err_t nvs_wrapper::setValueToKey(std::string key_name, int32_t value)
         ESP_ERROR_CHECK_WITHOUT_ABORT(err);
         return err;
     }
-    err = nvs_set_i32(nvs_namespace_handle, Crypto_Functions::hash_to_length(key_name).c_str(), value);
+    err = nvs_set_i32(nvs_namespace_handle, hash_functions::hash_to_length(key_name).c_str(), value);
     if (err != ESP_OK)
     {
         printf("Couldn't set data\n");
@@ -300,7 +299,7 @@ esp_err_t nvs_wrapper::setValueToKey(std::string key_name, std::string value)
         return err;
     }
 
-    err = nvs_set_str(nvs_namespace_handle, Crypto_Functions::hash_to_length(key_name).c_str(), value.c_str());
+    err = nvs_set_str(nvs_namespace_handle, hash_functions::hash_to_length(key_name).c_str(), value.c_str());
     if (err != ESP_OK)
     {
         ESP_ERROR_CHECK_WITHOUT_ABORT(err);
@@ -328,7 +327,7 @@ esp_err_t nvs_wrapper::setValueToKey(std::string key_name, void *value, size_t b
         return err;
     }
 
-    err = nvs_set_blob(nvs_namespace_handle, Crypto_Functions::hash_to_length(key_name).c_str(), value, blob_size);
+    err = nvs_set_blob(nvs_namespace_handle, hash_functions::hash_to_length(key_name).c_str(), value, blob_size);
 
     if (err != ESP_OK)
     {

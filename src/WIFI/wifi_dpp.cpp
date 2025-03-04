@@ -1,6 +1,6 @@
 #include "wifi/wifi_dpp.h"
 
-static std::shared_ptr<DPP_QR_Code> *qr_code_ref = nullptr;
+static std::shared_ptr<DPP_QR_Code> qr_code_ref = nullptr;
 
 static void dpp_enrollee_event_cb(esp_supp_dpp_event_t event, void *data);
 static esp_err_t dpp_enrollee_bootstrap(void);
@@ -9,6 +9,7 @@ static bool dpp_enrollee_init(void);
 static void dpp_enrollee_event_cb(esp_supp_dpp_event_t event, void *data)
 {
     constexpr const char *TAG = "dpp_enrollee_event_cb()";
+    
     esp_err_t err;
     //ESP_LOGI(TAG, "dpp_enrollee_event_cb called with event: %d", event);
 
@@ -19,7 +20,7 @@ static void dpp_enrollee_event_cb(esp_supp_dpp_event_t event, void *data)
         if (data != NULL)
         {
 
-            *qr_code_ref = DPP_QR_Code::create_QR_Code_from_url((char *)data);
+            qr_code_ref = DPP_QR_Code::create_QR_Code_from_url((char *)data);
 
             err = (esp_supp_dpp_start_listen());
             if (err != ESP_OK)
@@ -167,7 +168,7 @@ static bool dpp_enrollee_init(void)
     err = esp_supp_dpp_init(dpp_enrollee_event_cb);
 
     std::shared_ptr<DPP_QR_Code> dpp_qr_code;
-    qr_code_ref = &dpp_qr_code;
+    qr_code_ref = dpp_qr_code;
 
     if (err != ESP_OK)
     {
