@@ -15,7 +15,7 @@
 #include "driver/gpio.h"
 #include "driver/i2c.h"
 #include "esp_lcd_panel_io.h"
-#include "espressif_esp_lcd_touch_1.1.1/include/esp_lcd_touch.h"
+#include "esp_lcd_touch.h"
 
 static const char *TAG = "GT911";
 

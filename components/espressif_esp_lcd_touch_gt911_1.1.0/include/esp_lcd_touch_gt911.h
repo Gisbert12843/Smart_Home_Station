@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include "espressif_esp_lcd_touch_1.1.1/include/esp_lcd_touch.h"
+#include "esp_lcd_touch.h"
 
 #ifdef __cplusplus
 extern "C"

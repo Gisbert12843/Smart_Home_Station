@@ -1,6 +1,6 @@
 #include "ui/ui_elements_button.h"
 #include "ui/ui.h"
-#include "tft/tft.h"
+#include "display/display.h"
 #include "esp_log.h"
 #include "mqtt/mqtt.h"
 

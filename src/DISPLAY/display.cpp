@@ -1,8 +1,12 @@
-#include "tft/tft.h"
-#include "esp_log.h"
-#include "esp_lcd_panel_io.h"
-#include "esp_lcd_panel_ops.h"
+#include "display/display.h"
+
+
+#include "driver/i2c_master.h"
+
 #include "esp_timer.h"
+#include "esp_log.h"
+
+#include "utils/helper_functions.h"
 
 
 // static SemaphoreHandle_t lvgl_mux; // LVGL mutex
@@ -40,12 +44,12 @@
 static esp_lcd_touch_handle_t tp; // LCD touch handle
 static lv_display_t *disp;
 
-static bool notify_lvgl_flush_ready(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_io_event_data_t *edata, void *user_ctx)
-{
-    lv_display_t *disp_driver = (lv_display_t *)user_ctx;
-    lv_disp_flush_ready(disp_driver);
-    return false;
-}
+// static bool notify_lvgl_flush_ready(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_io_event_data_t *edata, void *user_ctx)
+// {
+//     lv_display_t *disp_driver = (lv_display_t *)user_ctx;
+//     lv_disp_flush_ready(disp_driver);
+//     return false;
+// }
 
 static void lvgl_flush_cb(lv_display_t *drv, const lv_area_t *area, uint8_t *color_map)
 {
@@ -58,7 +62,37 @@ static void lvgl_tick_increment_cb(void *arg)
     lv_tick_inc(EXAMPLE_LVGL_TICK_PERIOD_MS);
 }
 
-void tft_init(void)
+
+void touchpad_read(lv_indev_t *indev_drv, lv_indev_data_t *data)
+{
+    esp_lcd_touch_handle_t tp = (esp_lcd_touch_handle_t)lv_indev_get_user_data(indev_drv);
+    uint16_t touchpad_x[1] = {0};
+    uint16_t touchpad_y[1] = {0};
+    uint8_t touchpad_cnt = 0;
+
+    assert(tp);
+
+    /* Read data from touch controller into memory */
+    esp_lcd_touch_read_data(tp);
+
+    /* Read data from touch controller */
+    bool touchpad_pressed = esp_lcd_touch_get_coordinates(tp, touchpad_x, touchpad_y, NULL, &touchpad_cnt, 1);
+
+    if (touchpad_pressed && touchpad_cnt > 0)
+    {
+        data->point.x = -1*((touchpad_x[0] - EXAMPLE_LCD_H_RES)); //This is to turn the 0/0 point from the top/right into the top/left corner (landscape mode)
+        data->point.y = touchpad_y[0];
+
+        // ESP_LOGD("touchpad_read()", "Touchpad pressed at x: %d, y: %d", data->point.x, data->point.y);
+        data->state = LV_INDEV_STATE_PRESSED;
+    }
+    else
+    {
+        data->state = LV_INDEV_STATE_RELEASED;
+    }
+}
+
+esp_err_t init_i8080()
 {
     ESP_LOGI(TAG, "Turn off LCD backlight");
     gpio_config_t bk_gpio_config = {
@@ -120,7 +154,7 @@ void tft_init(void)
         .rgb_ele_order = LCD_RGB_ELEMENT_ORDER_BGR,
         .bits_per_pixel = 16};
 
-    ESP_ERROR_CHECK(esp_lcd_new_panel_ili9488(io_handle, &panel_config, BUFFER_SIZE, &panel_handle));
+    ESP_ERROR_CHECK(init_display_driver(io_handle, &panel_config, BUFFER_SIZE, &panel_handle));
     ESP_ERROR_CHECK(esp_lcd_panel_reset(panel_handle));
     ESP_ERROR_CHECK(esp_lcd_panel_init(panel_handle));
     ESP_ERROR_CHECK(esp_lcd_panel_set_gap(panel_handle, 0, 0));
@@ -180,7 +214,7 @@ void tft_init(void)
     ESP_LOGI(TAG, "INIT TOUCH");
 
     static lv_indev_t *indev_drv_tp = lv_indev_create();
-
+    
     const esp_lcd_touch_config_t tp_cfg = {
         .x_max = EXAMPLE_LCD_H_RES,
         .y_max = EXAMPLE_LCD_V_RES,
@@ -205,7 +239,7 @@ void tft_init(void)
     tp_io_config.scl_speed_hz = 400000;
 
     ESP_ERROR_CHECK(esp_lcd_new_panel_io_i2c_v2(i2c_bus, &tp_io_config, &tp_io_handle));
-    ESP_ERROR_CHECK(esp_lcd_touch_new_i2c_gt911(tp_io_handle, &tp_cfg, &tp));
+    ESP_ERROR_CHECK(init_touch_driver(tp_io_handle, (const esp_lcd_touch_config_t *)&tp_cfg, &tp));
     assert(tp);
 
     /* Register a touchpad input device */
@@ -230,7 +264,7 @@ void tft_init(void)
     ESP_ERROR_CHECK(esp_timer_start_periodic(lvgl_tick_timer, EXAMPLE_LVGL_TICK_PERIOD_MS * 1000));
 
     ESP_LOGI(TAG, "Display LVGL animation");
-    lv_obj_t *scr = lv_disp_get_scr_act(disp);
+    lv_disp_get_scr_act(disp);
 
-    ui_init(scr);
+    return ESP_OK;
 }

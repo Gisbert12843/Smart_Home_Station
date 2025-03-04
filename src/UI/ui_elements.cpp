@@ -4,7 +4,9 @@
 #include "mqtt/mqtt.h"
 #include <string>
 #include <memory>
-#include "tft/tft.h"
+#include "display/display.h"
+
+#include "esp_log.h"
 
 bool lv_color_compare(lv_color_t color1, lv_color_t color2)
 {

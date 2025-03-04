@@ -5,7 +5,7 @@
 #include "utils/helper_functions.h"
 #include "WIFI/WiFi_Functions.h"
 #include "mqtt/mqtt_server.h"
-#include "tft/tft.h"
+#include "display/display.h"
 
 #define status_bar_height 37
 #define main_view_height EXAMPLE_LCD_V_RES - status_bar_height

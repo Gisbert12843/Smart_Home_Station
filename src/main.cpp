@@ -6,7 +6,7 @@ extern "C"
 #include "wifi/WiFi_Functions.h"
 #include "utils/helper_functions.h"
 #include "mqtt/mqtt.h"
-#include "tft/tft.h"
+#include "display/display.h"
 #include "ui/color_palette.h"
 #include "ui/ui.h"
 #include "wifi/wifi_dpp.h"
@@ -22,7 +22,7 @@ void app_main()
     WiFi_Functions::init();
     initialise_mdns();
 
-    tft_init();
+    init_i8080();
 
     xTaskCreate(lvgl_manager_bg_task, "lvgl_manager_bg_task", 2048 * 3, NULL, 22, NULL);
 
