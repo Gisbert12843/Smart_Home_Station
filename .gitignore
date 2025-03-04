@@ -5,4 +5,8 @@
 .vscode/ipch
 build
 .vscode
+<<<<<<< HEAD
 dependencies.lock
+=======
+build/
+>>>>>>> 0b68564 (added .gitignore)
