@@ -2,7 +2,6 @@
 
 
 #include "driver/i2c_master.h"
-
 #include "esp_timer.h"
 #include "esp_log.h"
 
@@ -13,30 +12,33 @@
 
 #define TAG "LCD"
 
-#define EXAMPLE_LCD_PIXEL_CLOCK_HZ (10 * 1000 * 1000)
-#define EXAMPLE_LCD_I80_BUS_WIDTH 8
-#define EXAMPLE_LCD_BK_LIGHT_ON_LEVEL 1
-#define EXAMPLE_LCD_BK_LIGHT_OFF_LEVEL !EXAMPLE_LCD_BK_LIGHT_ON_LEVEL
 
-#define EXAMPLE_PIN_NUM_DATA0 ((gpio_num_t)18)
-#define EXAMPLE_PIN_NUM_DATA1 ((gpio_num_t)5)
-#define EXAMPLE_PIN_NUM_DATA2 ((gpio_num_t)26)
-#define EXAMPLE_PIN_NUM_DATA3 ((gpio_num_t)25)
-#define EXAMPLE_PIN_NUM_DATA4 ((gpio_num_t)17)
-#define EXAMPLE_PIN_NUM_DATA5 ((gpio_num_t)16)
-#define EXAMPLE_PIN_NUM_DATA6 ((gpio_num_t)27)
-#define EXAMPLE_PIN_NUM_DATA7 ((gpio_num_t)14)
+#define BUFFER_SIZE LCD_H_RES *LCD_V_RES / 30
 
-#define EXAMPLE_PIN_NUM_PCLK ((gpio_num_t)4) // WR
-#define EXAMPLE_PIN_NUM_CS ((gpio_num_t)33)
-#define EXAMPLE_PIN_NUM_DC ((gpio_num_t)15)
-#define EXAMPLE_PIN_NUM_RST ((gpio_num_t)32)
-#define EXAMPLE_PIN_NUM_BK_LIGHT ((gpio_num_t)13)
+#define LCD_PIXEL_CLOCK_HZ (10 * 1000 * 1000)
+#define LCD_I80_BUS_WIDTH 8
+#define LCD_BK_LIGHT_ON_LEVEL 1
+#define LCD_BK_LIGHT_OFF_LEVEL !LCD_BK_LIGHT_ON_LEVEL
 
-#define EXAMPLE_PIN_NUM_SDA ((gpio_num_t)21)
-#define EXAMPLE_PIN_NUM_SCL ((gpio_num_t)22)
-#define EXAMPLE_PIN_NUM_INT ((gpio_num_t)19)
-#define EXAMPLE_PIN_NUM_CRST ((gpio_num_t)23)
+#define PIN_NUM_DATA0 ((gpio_num_t)18)
+#define PIN_NUM_DATA1 ((gpio_num_t)5)
+#define PIN_NUM_DATA2 ((gpio_num_t)26)
+#define PIN_NUM_DATA3 ((gpio_num_t)25)
+#define PIN_NUM_DATA4 ((gpio_num_t)17)
+#define PIN_NUM_DATA5 ((gpio_num_t)16)
+#define PIN_NUM_DATA6 ((gpio_num_t)27)
+#define PIN_NUM_DATA7 ((gpio_num_t)14)
+
+#define PIN_NUM_PCLK ((gpio_num_t)4) // WR
+#define PIN_NUM_CS ((gpio_num_t)33)
+#define PIN_NUM_DC ((gpio_num_t)15)
+#define PIN_NUM_RST ((gpio_num_t)32)
+#define PIN_NUM_BK_LIGHT ((gpio_num_t)13)
+
+#define PIN_NUM_SDA ((gpio_num_t)21)
+#define PIN_NUM_SCL ((gpio_num_t)22)
+#define PIN_NUM_INT ((gpio_num_t)19)
+#define PIN_NUM_CRST ((gpio_num_t)23)
 #define I2C_MASTER_TX_BUF_DISABLE 0 /*!< I2C master doesn't need buffer */
 #define I2C_MASTER_RX_BUF_DISABLE 0 /*!< I2C master doesn't need buffer */
 #define I2C_MASTER_TIMEOUT_MS 1000
@@ -59,7 +61,7 @@ static void lvgl_flush_cb(lv_display_t *drv, const lv_area_t *area, uint8_t *col
 
 static void lvgl_tick_increment_cb(void *arg)
 {
-    lv_tick_inc(EXAMPLE_LVGL_TICK_PERIOD_MS);
+    lv_tick_inc(LVGL_TICK_PERIOD_MS);
 }
 
 
@@ -80,7 +82,7 @@ void touchpad_read(lv_indev_t *indev_drv, lv_indev_data_t *data)
 
     if (touchpad_pressed && touchpad_cnt > 0)
     {
-        data->point.x = -1*((touchpad_x[0] - EXAMPLE_LCD_H_RES)); //This is to turn the 0/0 point from the top/right into the top/left corner (landscape mode)
+        data->point.x = -1*((touchpad_x[0] - LCD_H_RES)); //This is to turn the 0/0 point from the top/right into the top/left corner (landscape mode)
         data->point.y = touchpad_y[0];
 
         // ESP_LOGD("touchpad_read()", "Touchpad pressed at x: %d, y: %d", data->point.x, data->point.y);
@@ -96,32 +98,32 @@ esp_err_t init_i8080()
 {
     ESP_LOGI(TAG, "Turn off LCD backlight");
     gpio_config_t bk_gpio_config = {
-        .pin_bit_mask = 1ULL << EXAMPLE_PIN_NUM_BK_LIGHT,
+        .pin_bit_mask = 1ULL << PIN_NUM_BK_LIGHT,
         .mode = GPIO_MODE_OUTPUT,
         .pull_up_en = GPIO_PULLUP_DISABLE,
         .pull_down_en = GPIO_PULLDOWN_DISABLE,
         .intr_type = GPIO_INTR_DISABLE};
 
     ESP_ERROR_CHECK(gpio_config(&bk_gpio_config));
-    gpio_set_level(EXAMPLE_PIN_NUM_BK_LIGHT, EXAMPLE_LCD_BK_LIGHT_OFF_LEVEL);
+    gpio_set_level(PIN_NUM_BK_LIGHT, LCD_BK_LIGHT_OFF_LEVEL);
 
     ESP_LOGI(TAG, "Initialize Intel 8080 bus");
     esp_lcd_i80_bus_handle_t i80_bus = NULL;
     esp_lcd_i80_bus_config_t bus_config =
         {
-            .dc_gpio_num = EXAMPLE_PIN_NUM_DC,
-            .wr_gpio_num = EXAMPLE_PIN_NUM_PCLK,
+            .dc_gpio_num = PIN_NUM_DC,
+            .wr_gpio_num = PIN_NUM_PCLK,
             .clk_src = LCD_CLK_SRC_DEFAULT,
             .data_gpio_nums = {
-                EXAMPLE_PIN_NUM_DATA0,
-                EXAMPLE_PIN_NUM_DATA1,
-                EXAMPLE_PIN_NUM_DATA2,
-                EXAMPLE_PIN_NUM_DATA3,
-                EXAMPLE_PIN_NUM_DATA4,
-                EXAMPLE_PIN_NUM_DATA5,
-                EXAMPLE_PIN_NUM_DATA6,
-                EXAMPLE_PIN_NUM_DATA7},
-            .bus_width = EXAMPLE_LCD_I80_BUS_WIDTH,
+                PIN_NUM_DATA0,
+                PIN_NUM_DATA1,
+                PIN_NUM_DATA2,
+                PIN_NUM_DATA3,
+                PIN_NUM_DATA4,
+                PIN_NUM_DATA5,
+                PIN_NUM_DATA6,
+                PIN_NUM_DATA7},
+            .bus_width = LCD_I80_BUS_WIDTH,
             .max_transfer_bytes = BUFFER_SIZE * sizeof(lv_color16_t),
             .psram_trans_align = 64,
             .sram_trans_align = 32,
@@ -131,13 +133,13 @@ esp_err_t init_i8080()
 
     esp_lcd_panel_io_handle_t io_handle = NULL;
     esp_lcd_panel_io_i80_config_t io_config = {
-        .cs_gpio_num = EXAMPLE_PIN_NUM_CS,
-        .pclk_hz = EXAMPLE_LCD_PIXEL_CLOCK_HZ,
+        .cs_gpio_num = PIN_NUM_CS,
+        .pclk_hz = LCD_PIXEL_CLOCK_HZ,
         .trans_queue_depth = 20,
         // .on_color_trans_done = notify_lvgl_flush_ready,
         .user_ctx = disp, // this
-        .lcd_cmd_bits = EXAMPLE_LCD_CMD_BITS,
-        .lcd_param_bits = EXAMPLE_LCD_PARAM_BITS,
+        .lcd_cmd_bits = LCD_CMD_BITS,
+        .lcd_param_bits = LCD_PARAM_BITS,
         .dc_levels = {
             .dc_idle_level = 1,
             .dc_cmd_level = 0,
@@ -150,7 +152,7 @@ esp_err_t init_i8080()
     ESP_LOGI(TAG, "Install LCD driver of ili9488");
     esp_lcd_panel_handle_t panel_handle = NULL;
     esp_lcd_panel_dev_config_t panel_config = {
-        .reset_gpio_num = EXAMPLE_PIN_NUM_RST,
+        .reset_gpio_num = PIN_NUM_RST,
         .rgb_ele_order = LCD_RGB_ELEMENT_ORDER_BGR,
         .bits_per_pixel = 16};
 
@@ -159,12 +161,12 @@ esp_err_t init_i8080()
     ESP_ERROR_CHECK(esp_lcd_panel_init(panel_handle));
     ESP_ERROR_CHECK(esp_lcd_panel_set_gap(panel_handle, 0, 0));
 
-    // These are here to rotate the screen to landscape mode, dont forget to alter the EXAMPLE_LCD_H_RES and EXAMPLE_LCD_V_RES to your new POV
+    // These are here to rotate the screen to landscape mode, dont forget to alter the LCD_H_RES and LCD_V_RES to your new POV
     ESP_ERROR_CHECK(esp_lcd_panel_swap_xy(panel_handle, true));
     ESP_ERROR_CHECK(esp_lcd_panel_mirror(panel_handle, false, true));
 
     ESP_LOGI(TAG, "Turn on LCD backlight");
-    ESP_ERROR_CHECK(gpio_set_level(EXAMPLE_PIN_NUM_BK_LIGHT, EXAMPLE_LCD_BK_LIGHT_ON_LEVEL));
+    ESP_ERROR_CHECK(gpio_set_level(PIN_NUM_BK_LIGHT, LCD_BK_LIGHT_ON_LEVEL));
 
     helper_functions::delay(200);
     ////////////////////////////////////////////////////
@@ -174,8 +176,8 @@ esp_err_t init_i8080()
     i2c_master_bus_handle_t i2c_bus = NULL;
     i2c_master_bus_config_t i2c_bus_config = {
         .i2c_port = 0,
-        .sda_io_num = EXAMPLE_PIN_NUM_SDA,
-        .scl_io_num = EXAMPLE_PIN_NUM_SCL,
+        .sda_io_num = PIN_NUM_SDA,
+        .scl_io_num = PIN_NUM_SCL,
         .clk_source = I2C_CLK_SRC_DEFAULT,
 
         .glitch_ignore_cnt = 7,
@@ -195,7 +197,7 @@ esp_err_t init_i8080()
 
     ESP_LOGI(TAG, "Buffers initialized");
 
-    disp = lv_display_create(EXAMPLE_LCD_H_RES, EXAMPLE_LCD_V_RES);
+    disp = lv_display_create(LCD_H_RES, LCD_V_RES);
     ESP_LOGI(TAG, "Display initialized");
 
     lv_display_set_buffers(disp, &buf1[0], &buf2[0], BUFFER_SIZE * sizeof(lv_color16_t), LV_DISPLAY_RENDER_MODE_PARTIAL);
@@ -216,10 +218,10 @@ esp_err_t init_i8080()
     static lv_indev_t *indev_drv_tp = lv_indev_create();
     
     const esp_lcd_touch_config_t tp_cfg = {
-        .x_max = EXAMPLE_LCD_H_RES,
-        .y_max = EXAMPLE_LCD_V_RES,
+        .x_max = LCD_H_RES,
+        .y_max = LCD_V_RES,
         .rst_gpio_num = GPIO_NUM_NC,
-        .int_gpio_num = EXAMPLE_PIN_NUM_INT,
+        .int_gpio_num = PIN_NUM_INT,
         .levels = {
             .reset = 0,
             .interrupt = 0,
@@ -261,7 +263,7 @@ esp_err_t init_i8080()
     esp_timer_handle_t lvgl_tick_timer = NULL;
 
     ESP_ERROR_CHECK(esp_timer_create(&lvgl_tick_timer_args, &lvgl_tick_timer));
-    ESP_ERROR_CHECK(esp_timer_start_periodic(lvgl_tick_timer, EXAMPLE_LVGL_TICK_PERIOD_MS * 1000));
+    ESP_ERROR_CHECK(esp_timer_start_periodic(lvgl_tick_timer, LVGL_TICK_PERIOD_MS * 1000));
 
     ESP_LOGI(TAG, "Display LVGL animation");
     lv_disp_get_scr_act(disp);
