@@ -8,7 +8,7 @@
 #include "display/display.h"
 
 #define status_bar_height 37
-#define main_view_height EXAMPLE_LCD_V_RES - status_bar_height
+#define main_view_height LCD_V_RES - status_bar_height
 
 extern std::recursive_mutex mqtt_server_mutex; // mqtt_server.cpp
 
@@ -86,7 +86,7 @@ void topics_reload(lv_obj_t *scr)
     static int32_t col_dsc[] = {LV_GRID_FR(1), 10, LV_GRID_FR(1), 10, LV_GRID_FR(1), 10, LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
     static int32_t row_dsc[] = {LV_GRID_FR(1), 10, LV_GRID_FR(1), 10, LV_GRID_FR(1), LV_GRID_TEMPLATE_LAST};
     lv_obj_t *grid = lv_obj_create(scr);
-    lv_obj_set_size(grid, EXAMPLE_LCD_H_RES, main_view_height);
+    lv_obj_set_size(grid, LCD_H_RES, main_view_height);
     lv_obj_clear_flag(grid, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_center(grid);
     lv_obj_set_grid_dsc_array(grid, col_dsc, row_dsc);
@@ -166,7 +166,7 @@ void main_view(void *params)
         else
         {
             main_view_screen = lv_obj_create(lv_disp_get_scr_act(NULL));
-            lv_obj_set_size(main_view_screen, EXAMPLE_LCD_H_RES, main_view_height);
+            lv_obj_set_size(main_view_screen, LCD_H_RES, main_view_height);
             lv_obj_set_pos(main_view_screen, 0, status_bar_height);
             lv_obj_set_style_bg_color(main_view_screen, lv_color_hex(COLOR_BLUE), 0); // RGB for grey is (192, 192, 192)
             lv_obj_set_style_border_width(main_view_screen, 0, 0);
@@ -267,7 +267,7 @@ std::shared_ptr<DPP_QR_Code> DPP_QR_Code::create_QR_Code_from_url(std::string ur
     lv_color_t qr_code_fg_color = lv_color_hex(COLOR_BLACK);
 
     // qr_screen_wrapper = lv_obj_create(lv_disp_get_scr_act(NULL)); // Create a full screen cover to display the QR code
-    // lv_obj_set_size(qr_screen_wrapper, EXAMPLE_LCD_H_RES, EXAMPLE_LCD_V_RES);
+    // lv_obj_set_size(qr_screen_wrapper, LCD_H_RES, LCD_V_RES);
     // lv_obj_add_flag(qr_screen_wrapper, LV_OBJ_FLAG_HIDDEN); // Hide the object for now
     // lv_obj_set_pos(qr_screen_wrapper, 0, 0);
     // lv_obj_set_style_bg_color(qr_screen_wrapper, lv_color_black(), 0);
@@ -278,7 +278,7 @@ std::shared_ptr<DPP_QR_Code> DPP_QR_Code::create_QR_Code_from_url(std::string ur
     lv_obj_t *qr_msg_box = lv_msgbox_create(qr_code.get()->popup->get_popup_obj());
     lv_obj_set_size(qr_msg_box, MSG_BOX_WIDTH, MSG_BOX_HEIGHT);
     lv_obj_center(qr_msg_box);
-    lv_obj_set_pos(qr_msg_box, lv_obj_get_x(qr_msg_box), (EXAMPLE_LCD_V_RES - status_bar_height - MSG_BOX_HEIGHT) / 2);
+    lv_obj_set_pos(qr_msg_box, lv_obj_get_x(qr_msg_box), (LCD_V_RES - status_bar_height - MSG_BOX_HEIGHT) / 2);
 
     lv_obj_update_layout(qr_msg_box);
 
@@ -423,7 +423,7 @@ void dpp_wifi_renew_button_cb(lv_event_t *e)
     ESP_LOGI("dpp_wifi_renew_button_cb()", "QR Code Button Clicked");
 
     lv_obj_t *scr_cover = lv_obj_create(lv_disp_get_scr_act(NULL));
-    lv_obj_set_size(scr_cover, EXAMPLE_LCD_H_RES, EXAMPLE_LCD_V_RES);
+    lv_obj_set_size(scr_cover, LCD_H_RES, LCD_V_RES);
     lv_obj_set_pos(scr_cover, 0, 0);
     lv_obj_set_style_bg_color(scr_cover, lv_color_black(), 0);
     lv_obj_set_style_bg_opa(scr_cover, LV_OPA_50, 0); // Adjust opacity as needed
@@ -511,7 +511,7 @@ void status_bar(void *params)
         static int32_t col_dsc[] = {LV_GRID_FR(1), LV_GRID_CONTENT, LV_GRID_CONTENT, LV_GRID_TEMPLATE_LAST};
         static int32_t row_dsc[] = {LV_GRID_FR(1)};
 
-        lv_obj_set_size(Status_Bar, EXAMPLE_LCD_H_RES, status_bar_height);
+        lv_obj_set_size(Status_Bar, LCD_H_RES, status_bar_height);
         lv_obj_set_pos(Status_Bar, 0, 0);
         lv_obj_clear_flag(Status_Bar, LV_OBJ_FLAG_SCROLLABLE);
         lv_obj_set_grid_dsc_array(Status_Bar, col_dsc, row_dsc);
@@ -605,7 +605,7 @@ void show_add_new_client_overlay()
 {
     std::lock_guard<std::recursive_mutex> lock(lvgl_mutex);
     lv_obj_t *overlay = lv_obj_create(lv_layer_top());
-    lv_obj_set_size(overlay, EXAMPLE_LCD_H_RES, EXAMPLE_LCD_V_RES);
+    lv_obj_set_size(overlay, LCD_H_RES, LCD_V_RES);
 
     lv_obj_t *msgbox = lv_msgbox_create(overlay);
     lv_obj_set_size(msgbox, 300, 200);

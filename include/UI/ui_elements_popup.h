@@ -1,6 +1,6 @@
 #pragma once
 #include "ui_elements.h"
-// #include "display/display.h"
+#include "display/display.h"
 
 //
 class UI_Popup : public UI_Element
@@ -25,5 +25,5 @@ public:
 
     void show_popup();
 
-    static std::shared_ptr<UI_Popup> create_popup(std::string id, int left_top_pos_x = 0, int left_top_pos_y = 0, int width = EXAMPLE_LCD_H_RES, int height = EXAMPLE_LCD_V_RES);
+    static std::shared_ptr<UI_Popup> create_popup(std::string id, int left_top_pos_x = 0, int left_top_pos_y = 0, int width = LCD_H_RES, int height = LCD_V_RES);
 };

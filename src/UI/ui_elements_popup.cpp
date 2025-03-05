@@ -41,7 +41,7 @@ std::shared_ptr<UI_Popup> UI_Popup::create_popup(std::string id, int left_top_po
     std::lock_guard<std::recursive_mutex> lock(lvgl_mutex);
 
     lv_obj_t *popup_obj = lv_obj_create(lv_disp_get_scr_act(NULL)); // Create a full screen cover to display the QR code
-    lv_obj_set_size(popup_obj, EXAMPLE_LCD_H_RES, EXAMPLE_LCD_V_RES);
+    lv_obj_set_size(popup_obj, LCD_H_RES, LCD_V_RES);
     lv_obj_add_flag(popup_obj, LV_OBJ_FLAG_HIDDEN); // Hide the object for now
     lv_obj_set_pos(popup_obj, 0, 0);
     lv_obj_set_style_bg_color(popup_obj, lv_color_black(), 0);
