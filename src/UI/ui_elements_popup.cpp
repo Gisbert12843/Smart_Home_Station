@@ -36,6 +36,7 @@ void UI_Popup::show_popup()
     lv_obj_clear_flag(popup_obj, LV_OBJ_FLAG_HIDDEN);
 }
 
+
 std::shared_ptr<UI_Popup> UI_Popup::create_popup(std::string id, int left_top_pos_x, int left_top_pos_y, int width, int height)
 {
     std::lock_guard<std::recursive_mutex> lock(lvgl_mutex);

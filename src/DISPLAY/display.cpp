@@ -1,17 +1,14 @@
 #include "display/display.h"
 
-
 #include "driver/i2c_master.h"
 #include "esp_timer.h"
 #include "esp_log.h"
 
 #include "utils/helper_functions.h"
 
-
 // static SemaphoreHandle_t lvgl_mux; // LVGL mutex
 
 #define TAG "LCD"
-
 
 #define BUFFER_SIZE LCD_H_RES *LCD_V_RES / 30
 
@@ -20,25 +17,26 @@
 #define LCD_BK_LIGHT_ON_LEVEL 1
 #define LCD_BK_LIGHT_OFF_LEVEL !LCD_BK_LIGHT_ON_LEVEL
 
-#define PIN_NUM_DATA0 ((gpio_num_t)18)
-#define PIN_NUM_DATA1 ((gpio_num_t)5)
-#define PIN_NUM_DATA2 ((gpio_num_t)26)
-#define PIN_NUM_DATA3 ((gpio_num_t)25)
-#define PIN_NUM_DATA4 ((gpio_num_t)17)
-#define PIN_NUM_DATA5 ((gpio_num_t)16)
-#define PIN_NUM_DATA6 ((gpio_num_t)27)
-#define PIN_NUM_DATA7 ((gpio_num_t)14)
+#define PIN_NUM_DATA0 GPIO_NUM_18
+#define PIN_NUM_DATA1 GPIO_NUM_5
+#define PIN_NUM_DATA2 GPIO_NUM_26
+#define PIN_NUM_DATA3 GPIO_NUM_25
+#define PIN_NUM_DATA4 GPIO_NUM_17
+#define PIN_NUM_DATA5 GPIO_NUM_16
+#define PIN_NUM_DATA6 GPIO_NUM_27
+#define PIN_NUM_DATA7 GPIO_NUM_14
 
-#define PIN_NUM_PCLK ((gpio_num_t)4) // WR
-#define PIN_NUM_CS ((gpio_num_t)33)
-#define PIN_NUM_DC ((gpio_num_t)15)
-#define PIN_NUM_RST ((gpio_num_t)32)
-#define PIN_NUM_BK_LIGHT ((gpio_num_t)13)
+#define PIN_NUM_PCLK GPIO_NUM_4 // WR
+#define PIN_NUM_CS GPIO_NUM_33
+#define PIN_NUM_DC GPIO_NUM_15
+#define PIN_NUM_RST GPIO_NUM_32
+#define PIN_NUM_BK_LIGHT GPIO_NUM_13
 
-#define PIN_NUM_SDA ((gpio_num_t)21)
-#define PIN_NUM_SCL ((gpio_num_t)22)
-#define PIN_NUM_INT ((gpio_num_t)19)
-#define PIN_NUM_CRST ((gpio_num_t)23)
+#define PIN_NUM_SDA GPIO_NUM_21
+#define PIN_NUM_SCL GPIO_NUM_22
+#define PIN_NUM_INT GPIO_NUM_19
+#define PIN_NUM_CRST GPIO_NUM_23
+
 #define I2C_MASTER_TX_BUF_DISABLE 0 /*!< I2C master doesn't need buffer */
 #define I2C_MASTER_RX_BUF_DISABLE 0 /*!< I2C master doesn't need buffer */
 #define I2C_MASTER_TIMEOUT_MS 1000
@@ -64,7 +62,6 @@ static void lvgl_tick_increment_cb(void *arg)
     lv_tick_inc(LVGL_TICK_PERIOD_MS);
 }
 
-
 void touchpad_read(lv_indev_t *indev_drv, lv_indev_data_t *data)
 {
     esp_lcd_touch_handle_t tp = (esp_lcd_touch_handle_t)lv_indev_get_user_data(indev_drv);
@@ -82,7 +79,7 @@ void touchpad_read(lv_indev_t *indev_drv, lv_indev_data_t *data)
 
     if (touchpad_pressed && touchpad_cnt > 0)
     {
-        data->point.x = -1*((touchpad_x[0] - LCD_H_RES)); //This is to turn the 0/0 point from the top/right into the top/left corner (landscape mode)
+        data->point.x = -1 * ((touchpad_x[0] - LCD_H_RES)); // This is to turn the 0/0 point from the top/right into the top/left corner (landscape mode)
         data->point.y = touchpad_y[0];
 
         // ESP_LOGD("touchpad_read()", "Touchpad pressed at x: %d, y: %d", data->point.x, data->point.y);
@@ -216,7 +213,7 @@ esp_err_t init_i8080()
     ESP_LOGI(TAG, "INIT TOUCH");
 
     static lv_indev_t *indev_drv_tp = lv_indev_create();
-    
+
     const esp_lcd_touch_config_t tp_cfg = {
         .x_max = LCD_H_RES,
         .y_max = LCD_V_RES,
