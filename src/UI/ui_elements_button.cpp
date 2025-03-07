@@ -35,20 +35,62 @@ static void UI_Button_event_handler(lv_event_t *e)
     }
 }
 
+UI_Button::UI_Button(lv_obj_t *parent, const std::string &topic, bool state) : topic(topic), state(state), id(std::string("UI_Button_") + topic)
+{
+    std::lock_guard<std::recursive_mutex> lock(lvgl_mutex);
+
+    button_obj = lv_btn_create(parent);
+    lv_obj_set_style_bg_color(button_obj, lv_color_hex(COLOR_MIDGREY), 0);
+    lv_obj_set_style_pad_hor(button_obj, 10, 0);
+    lv_obj_set_size(button_obj, 86, 86);
+    if (state)
+    {
+        lv_obj_set_style_border_color(button_obj, lv_color_hex(COLOR_MID_GREEN), 0);
+    }
+    else
+    {
+        lv_obj_set_style_border_color(button_obj, lv_color_hex(COLOR_RED), 0);
+    }
+    lv_obj_set_style_border_width(button_obj, 2, 0);
+
+    status_circle = lv_obj_create(button_obj);
+    lv_obj_set_scrollbar_mode(status_circle, LV_SCROLLBAR_MODE_OFF);
+    lv_obj_set_size(status_circle, 15, 15);
+    lv_obj_set_pos(status_circle, 55, 4);
+    if (state)
+    {
+        lv_obj_set_style_bg_color(status_circle, lv_color_hex(COLOR_MID_GREEN), 0);
+    }
+    else
+    {
+        lv_obj_set_style_bg_color(status_circle, lv_color_hex(COLOR_RED), 0);
+    }
+    lv_obj_set_style_border_width(status_circle, 0, 0);
+    lv_obj_set_style_radius(status_circle, LV_RADIUS_CIRCLE, 0);
+
+    label_obj = lv_label_create(button_obj);
+    lv_label_set_text(label_obj, topic.c_str());
+    lv_obj_center(label_obj);
+    lv_obj_set_style_text_font(label_obj, &lv_font_montserrat_14, 0);
+    lv_obj_set_style_text_color(label_obj, lv_color_hex(COLOR_BLACK), 0);
+    lv_label_set_long_mode(label_obj, LV_LABEL_LONG_SCROLL_CIRCULAR);
+    if (topic.length() > 9)
+        lv_obj_set_style_anim_duration(label_obj, (topic.length()) * 200, 0);
+
+    lv_obj_set_width(label_obj, 75);
+
+    lv_obj_add_event_cb(button_obj, UI_Button_event_handler, LV_EVENT_CLICKED, this);
+}
+
 UI_Button::~UI_Button()
 {
     std::lock_guard<std::recursive_mutex> lock(lvgl_mutex);
     lv_obj_del(button_obj);
 }
 
-UI_Element_Type UI_Button::getType() const
+UI_Element_Type UI_Button::get_type() const
 {
     return UI_Element_Type::UI_Button;
-}
-
-std::string UI_Button::getId() const
-{
-    return id;
 }
 
 lv_obj_t *UI_Button::get_button_obj() const
@@ -93,49 +135,5 @@ void UI_Button::set_state(bool new_state)
 
 std::shared_ptr<UI_Button> UI_Button::create_button(lv_obj_t *parent, const std::string &topic, bool state)
 {
-    std::lock_guard<std::recursive_mutex> lock(lvgl_mutex);
-
-    lv_obj_t *button = lv_btn_create(parent);
-    lv_obj_set_style_bg_color(button, lv_color_hex(COLOR_MIDGREY), 0);
-    lv_obj_set_style_pad_hor(button, 10, 0);
-    lv_obj_set_size(button, 86, 86);
-    if (state)
-    {
-        lv_obj_set_style_border_color(button, lv_color_hex(COLOR_MID_GREEN), 0);
-    }
-    else
-    {
-        lv_obj_set_style_border_color(button, lv_color_hex(COLOR_RED), 0);
-    }
-    lv_obj_set_style_border_width(button, 2, 0);
-
-    lv_obj_t *circle = lv_obj_create(button);
-    lv_obj_set_scrollbar_mode(circle, LV_SCROLLBAR_MODE_OFF);
-    lv_obj_set_size(circle, 15, 15);
-    lv_obj_set_pos(circle, 55, 4);
-    if (state)
-    {
-        lv_obj_set_style_bg_color(circle, lv_color_hex(COLOR_MID_GREEN), 0);
-    }
-    else
-    {
-        lv_obj_set_style_bg_color(circle, lv_color_hex(COLOR_RED), 0);
-    }
-    lv_obj_set_style_border_width(circle, 0, 0);
-    lv_obj_set_style_radius(circle, LV_RADIUS_CIRCLE, 0);
-
-    lv_obj_t *label = lv_label_create(button);
-    lv_label_set_text(label, topic.c_str());
-    lv_obj_center(label);
-    lv_obj_set_style_text_font(label, &lv_font_montserrat_14, 0);
-    lv_obj_set_style_text_color(label, lv_color_hex(COLOR_BLACK), 0);
-    lv_label_set_long_mode(label, LV_LABEL_LONG_SCROLL_CIRCULAR);
-    if (topic.length() > 9)
-        lv_obj_set_style_anim_duration(label, (topic.length()) * 200, 0);
-
-    lv_obj_set_width(label, 75);
-
-    auto new_button = std::shared_ptr<UI_Button>(new UI_Button(button, circle, label, topic, state));
-    lv_obj_add_event_cb(button, UI_Button_event_handler, LV_EVENT_CLICKED, &(*new_button));
-    return new_button;
+    return std::shared_ptr<UI_Button>(std::make_shared<UI_Button>(parent, topic, state));
 }

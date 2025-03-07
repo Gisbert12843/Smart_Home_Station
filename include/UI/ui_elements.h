@@ -25,10 +25,8 @@ class UI_Element
 {
 private:
     std::string id;
-    UI_Element_Type type;
-
 public:
     virtual ~UI_Element() = default;
-    virtual UI_Element_Type getType() const = 0;
-    virtual std::string getId() const = 0; // Add a method to get the ID
+    virtual UI_Element_Type get_type() const = 0;
+    const std::string &get_id() const { return id; }
 };

@@ -26,7 +26,7 @@ void WiFi_Functions::wifi_event_handler(void *arg, esp_event_base_t event_base, 
     case (WIFI_EVENT_STA_START):
     {
         TAG = "WIFI_EVENT_STA_START";
-        //ESP_LOGD(TAG.data(), "WIFI_EVENT_STA_START");
+        // ESP_LOGD(TAG.data(), "WIFI_EVENT_STA_START");
         xEventGroupSetBits(WiFi_Functions::wifi_event_group, WiFi_Functions::WiFi_DISCONNECTED_BIT);
         xEventGroupSetBits(ui_event_group, UI_STATUSBAR_UPDATE_BIT);
     }
@@ -35,7 +35,7 @@ void WiFi_Functions::wifi_event_handler(void *arg, esp_event_base_t event_base, 
     case (WIFI_EVENT_STA_STOP):
     {
         TAG = "WIFI_EVENT_STA_STOP";
-        //ESP_LOGD(TAG.data(), "WIFI_EVENT_STA_STOP");
+        // ESP_LOGD(TAG.data(), "WIFI_EVENT_STA_STOP");
         xEventGroupSetBits(WiFi_Functions::wifi_event_group, WiFi_Functions::WiFi_DISCONNECTED_BIT);
         xEventGroupClearBits(WiFi_Functions::wifi_event_group, WiFi_Functions::WIFI_CONNECTED_BIT);
         xEventGroupSetBits(ui_event_group, UI_STATUSBAR_UPDATE_BIT);
@@ -49,11 +49,11 @@ void WiFi_Functions::wifi_event_handler(void *arg, esp_event_base_t event_base, 
         xEventGroupSetBits(ui_event_group, UI_STATUSBAR_UPDATE_BIT);
 
         TAG = "WIFI_EVENT_STA_DISCONNECTED";
-        //ESP_LOGD(TAG.data(), "Connection to AP failed");
+        // ESP_LOGD(TAG.data(), "Connection to AP failed");
 
         if (s_retry_num < EXAMPLE_ESP_MAXIMUM_RETRY)
         {
-            //ESP_LOGD(TAG.data(), "Retrying to connect to the AP");
+            // ESP_LOGD(TAG.data(), "Retrying to connect to the AP");
             ESP_ERROR_CHECK_WITHOUT_ABORT(esp_wifi_connect());
             s_retry_num++;
         }
@@ -71,7 +71,7 @@ void WiFi_Functions::wifi_event_handler(void *arg, esp_event_base_t event_base, 
     case IP_EVENT_STA_GOT_IP:
     {
         TAG = "IP_EVENT_STA_GOT_IP";
-        //ESP_LOGD(TAG.data(), "IP_EVENT_STA_GOT_IP");
+        // ESP_LOGD(TAG.data(), "IP_EVENT_STA_GOT_IP");
 
         ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
 
@@ -80,7 +80,7 @@ void WiFi_Functions::wifi_event_handler(void *arg, esp_event_base_t event_base, 
         char gateway_ip[32];
         sprintf(gateway_ip, IPSTR, IP2STR(&event->ip_info.gw));
 
-        //ESP_LOGD(TAG.data(), "Connected as: \"%s\" to \"%s\"", local_ip, gateway_ip);
+        // ESP_LOGD(TAG.data(), "Connected as: \"%s\" to \"%s\"", local_ip, gateway_ip);
         s_retry_num = 0;
 
         xEventGroupClearBits(WiFi_Functions::wifi_event_group, WiFi_Functions::WiFi_DISCONNECTED_BIT);
@@ -104,7 +104,7 @@ void WiFi_Functions::reset_wifi()
         vTaskDelete(WiFi_Functions::Fail_Bit_Listener_Handle);
     WiFi_Functions::Fail_Bit_Listener_Handle = NULL;
 
-    //ESP_LOGD("WiFi_Functions::reset_wifi()", "Fixing WiFi");
+    // ESP_LOGD("WiFi_Functions::reset_wifi()", "Fixing WiFi");
     ESP_ERROR_CHECK_WITHOUT_ABORT(esp_event_handler_instance_unregister(WIFI_EVENT, ESP_EVENT_ANY_ID, &wifi_event_handler_instance));
     ESP_ERROR_CHECK_WITHOUT_ABORT(esp_event_handler_instance_unregister(IP_EVENT, ESP_EVENT_ANY_ID, &ip_event_handler_instance));
 
@@ -128,7 +128,7 @@ void WiFi_Functions::reset_wifi()
 
     init_state = false;
 
-    //ESP_LOGI("WiFi_Functions::de_init", "WiFi deinitialized successfully");
+    // ESP_LOGI("WiFi_Functions::de_init", "WiFi deinitialized successfully");
 
     init();
 }
@@ -163,11 +163,11 @@ void WiFi_Functions::de_init()
         // Removed esp_netif_deinit() since it is not supported.
 
         init_state = false;
-        //ESP_LOGI("WiFi_Functions::de_init", "WiFi deinitialized successfully");
+        // ESP_LOGI("WiFi_Functions::de_init", "WiFi deinitialized successfully");
     }
     else
     {
-        //ESP_LOGI("WiFi_Functions::de_init", "WiFi not initialized, ignoring deinit call");
+        // ESP_LOGI("WiFi_Functions::de_init", "WiFi not initialized, ignoring deinit call");
     }
 }
 
@@ -178,7 +178,7 @@ void WiFi_Functions::init()
     {
         if (WiFi_Functions::Fail_Bit_Listener_Handle != NULL)
         {
-            //ESP_LOGI(TAG, "Deleting Fail_Bit_Listener_Handle");
+            // ESP_LOGI(TAG, "Deleting Fail_Bit_Listener_Handle");
             vTaskDelete(WiFi_Functions::Fail_Bit_Listener_Handle);
         }
         WiFi_Functions::Fail_Bit_Listener_Handle = NULL;
@@ -210,12 +210,11 @@ void WiFi_Functions::init()
         ESP_ERROR_CHECK_WITHOUT_ABORT(esp_wifi_set_storage(WIFI_STORAGE_RAM));
         ESP_ERROR_CHECK_WITHOUT_ABORT(esp_wifi_set_mode(WIFI_MODE_STA));
 
-
-        //ESP_LOGI("WiFi_Functions::init", "WiFi STA&AP initialized successfully");
+        ESP_LOGD(TAG, "WiFi STA&AP initialized successfully");
     }
     else
     {
-        //ESP_LOGI("WiFi_Functions::init", "WiFi already initialized");
+        ESP_LOGI(TAG, "WiFi already initialized");
     }
 }
 
@@ -254,7 +253,7 @@ WiFi_Functions::AP_Credentials *WiFi_Functions::loadCredentialsFromNVS(std::stri
 
         if (err == ESP_OK)
         {
-            //ESP_LOGI(TAG, "\nRead NVS Value: \"%s\"", received_string.c_str());
+            // ESP_LOGI(TAG, "\nRead NVS Value: \"%s\"", received_string.c_str());
 
             std::string ssid = "";
             std::string password = "";
@@ -269,7 +268,8 @@ WiFi_Functions::AP_Credentials *WiFi_Functions::loadCredentialsFromNVS(std::stri
                         if (it == '~')
                         {
                             mode = 1;
-                            continue;;
+                            continue;
+                            ;
                         }
                         else
                         {
@@ -286,17 +286,17 @@ WiFi_Functions::AP_Credentials *WiFi_Functions::loadCredentialsFromNVS(std::stri
                 {
                     if (0 == strcmp(WiFi_Functions::AP_Credentials::getWifi_password().c_str(), password.c_str()))
                     {
-                        //ESP_LOGI(TAG, "Old password: \"%s\" is equal to new password: \"%s\"", WiFi_Functions::AP_Credentials::getWifi_password().c_str(), password.c_str());
-                        //ESP_LOGI(TAG, "Credentials are equal to the already stored ones, no opertation on saved credentials was performed.");
+                        // ESP_LOGI(TAG, "Old password: \"%s\" is equal to new password: \"%s\"", WiFi_Functions::AP_Credentials::getWifi_password().c_str(), password.c_str());
+                        // ESP_LOGI(TAG, "Credentials are equal to the already stored ones, no opertation on saved credentials was performed.");
                         nvs_release_iterator(it);
 
                         return WiFi_Functions::AP_Credentials::getInstance();
                     }
 
-                    //ESP_LOGI(TAG, "Old password: \"%s\" is NOT equal to new password: \"%s\"", WiFi_Functions::AP_Credentials::getWifi_password().c_str(), password.c_str());
+                    // ESP_LOGI(TAG, "Old password: \"%s\" is NOT equal to new password: \"%s\"", WiFi_Functions::AP_Credentials::getWifi_password().c_str(), password.c_str());
 
                     WiFi_Functions::AP_Credentials::saveAPConfiguration(ssid, password, true);
-                    //ESP_LOGI(TAG, "A Configuration was found that machtches this SSID. Credentials were updated.");
+                    // ESP_LOGI(TAG, "A Configuration was found that machtches this SSID. Credentials were updated.");
                     nvs_release_iterator(it);
 
                     return WiFi_Functions::AP_Credentials::getInstance(); // Found a match
@@ -304,7 +304,7 @@ WiFi_Functions::AP_Credentials *WiFi_Functions::loadCredentialsFromNVS(std::stri
 
                 WiFi_Functions::AP_Credentials::saveAPConfiguration(ssid, password, false);
 
-                //ESP_LOGI(TAG, "The following Configuration has been loaded from NVS:\n\tSSID:     \"%s\"\n\tPassword: \"%s\"", ssid.c_str(), password.c_str());
+                // ESP_LOGI(TAG, "The following Configuration has been loaded from NVS:\n\tSSID:     \"%s\"\n\tPassword: \"%s\"", ssid.c_str(), password.c_str());
                 nvs_release_iterator(it);
 
                 return WiFi_Functions::AP_Credentials::getInstance();
@@ -340,7 +340,7 @@ esp_err_t WiFi_Functions::AP_Credentials::setCredentialToNVS(WiFi_Functions::AP_
     // Add a null terminator to the end
     serializedData.push_back('\0');
 
-    //ESP_LOGI("AP_Credentials::setCredentialToNVS", "Saving following string data to NVS: \"%s\"", serializedData.c_str());
+    // ESP_LOGI("AP_Credentials::setCredentialToNVS", "Saving following string data to NVS: \"%s\"", serializedData.c_str());
 
     return nvs_wrapper::setValueToKey(cred->getWifi_ssid(), serializedData);
 }
@@ -355,7 +355,7 @@ esp_err_t WiFi_Functions::AP_Credentials::setCredentialToNVS(std::string wifi_ss
     // Add a null terminator to the end
     serializedData.push_back('\0');
 
-    //ESP_LOGI("AP_Credentials::setCredentialToNVS", "Saving following string data to NVS: \"%s\"", serializedData.c_str());
+    // ESP_LOGI("AP_Credentials::setCredentialToNVS", "Saving following string data to NVS: \"%s\"", serializedData.c_str());
 
     return nvs_wrapper::setValueToKey(wifi_ssid, serializedData);
 }
@@ -377,7 +377,7 @@ bool WiFi_Functions::connect_to_ap(AP_Credentials *connection)
     strncpy((char *)wifi_config.sta.ssid, connection->getWifi_ssid().c_str(), sizeof(wifi_config.sta.ssid) - 1);
     strncpy((char *)wifi_config.sta.password, connection->getWifi_password().c_str(), sizeof(wifi_config.sta.password) - 1);
 
-    //ESP_LOGI(TAG, "Attempting to connect to SSID: %s", wifi_config.sta.ssid);
+    // ESP_LOGI(TAG, "Attempting to connect to SSID: %s", wifi_config.sta.ssid);
 
     ESP_ERROR_CHECK_WITHOUT_ABORT(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
     ESP_ERROR_CHECK_WITHOUT_ABORT(esp_wifi_connect());
@@ -386,7 +386,7 @@ bool WiFi_Functions::connect_to_ap(AP_Credentials *connection)
 
     if (bits & WIFI_CONNECTED_BIT)
     {
-        //ESP_LOGI(TAG, "Connected to AP using the credentials:\n\tSSID: \"%s\" \n\tPassword: \"%s\"", connection->getWifi_ssid().c_str(), connection->getWifi_password().c_str());
+        // ESP_LOGI(TAG, "Connected to AP using the credentials:\n\tSSID: \"%s\" \n\tPassword: \"%s\"", connection->getWifi_ssid().c_str(), connection->getWifi_password().c_str());
         WiFi_Functions::AP_Credentials::saveAPConfiguration(connection->getWifi_ssid(), connection->getWifi_password());
         xTaskCreate(WiFi_Task::Task_Start_Fail_Bit_Listener, "Task_Start_Fail_Bit_Listener", 8 * 1024, NULL, 22, &Fail_Bit_Listener_Handle);
         xEventGroupClearBits(wifi_event_group, WIFI_FAIL_BIT);
@@ -415,7 +415,10 @@ std::string WiFi_Functions::find_available_networks()
         .bssid = 0,
         .channel = 0,
         .show_hidden = true,
-        .scan_time = 1000};
+        .scan_type = WIFI_SCAN_TYPE_ACTIVE,
+        .scan_time{.active{.min = 100, .max = 300}, .passive = 0},
+        .home_chan_dwell_time = 0,
+        .channel_bitmap = {0, 0}};
 
     err = esp_wifi_scan_start(&scan_config, true);
     ESP_ERROR_CHECK_WITHOUT_ABORT(err);
@@ -442,12 +445,12 @@ std::string WiFi_Functions::find_available_networks()
 
         if (WiFi_Functions::AP_Credentials::getWifi_ssid() == (char *)wifi_records[i].ssid)
         {
-            //ESP_LOGD(TAG, "Found present SSID: %s", (char *)(wifi_records[i].ssid));
+            // ESP_LOGD(TAG, "Found present SSID: %s", (char *)(wifi_records[i].ssid));
             return (char *)(wifi_records[i].ssid);
         }
     }
     // ESP_ERROR_CHECK_WITHOUT_ABORT(esp_wifi_stop());
-    //ESP_LOGD(TAG, "\n\n\nExited find available!\n\n\n");
+    // ESP_LOGD(TAG, "\n\n\nExited find available!\n\n\n");
     return "";
 }
 
@@ -464,7 +467,10 @@ int WiFi_Functions::check_network_availability(std::string ssid)
         .bssid = 0,
         .channel = 0,
         .show_hidden = true,
-        .scan_time = 1000};
+        .scan_type = WIFI_SCAN_TYPE_ACTIVE,
+        .scan_time{.active{.min = 100, .max = 300}, .passive = 0},
+        .home_chan_dwell_time = 0,
+        .channel_bitmap = {0, 0}};
 
     err = esp_wifi_scan_start(&scan_config, true);
     ESP_ERROR_CHECK_WITHOUT_ABORT(err);
@@ -500,12 +506,12 @@ int WiFi_Functions::check_network_availability(std::string ssid)
         if (ssid == (char *)wifi_records[i].ssid)
         {
 
-            //ESP_LOGD(TAG, "\n\nSSID: %s was found.", ssid.c_str());
+            // ESP_LOGD(TAG, "\n\nSSID: %s was found.", ssid.c_str());
             return 1;
         }
     }
 
-    //ESP_LOGD(TAG, "\n\nSSID: %s was not found.", ssid.c_str());
+    // ESP_LOGD(TAG, "\n\nSSID: %s was not found.", ssid.c_str());
 
     return 0;
 }
@@ -514,7 +520,7 @@ void WiFi_Functions::wifi_fail_bit_listener()
 {
     constexpr const char *TAG = "wifi_fail_bit_listener";
 
-    //ESP_LOGD(TAG, "Wifi_fail_bit_listener started.");
+    // ESP_LOGD(TAG, "Wifi_fail_bit_listener started.");
 
     // Wait for the WIFI_FAIL_BIT to be set
     xEventGroupWaitBits(WiFi_Functions::wifi_event_group, WIFI_FAIL_BIT, pdTRUE, pdTRUE, portMAX_DELAY);
@@ -552,7 +558,7 @@ void WiFi_Functions::wifi_fail_bit_listener()
             }
             else if (availability == 0)
             {
-                //ESP_LOGD(TAG, "%s is currently not available. Next try in 30 secs.", WiFi_Functions::AP_Credentials::getWifi_ssid().c_str());
+                // ESP_LOGD(TAG, "%s is currently not available. Next try in 30 secs.", WiFi_Functions::AP_Credentials::getWifi_ssid().c_str());
                 vTaskDelay(30000 / portTICK_PERIOD_MS);
                 continue;
             }
@@ -561,19 +567,19 @@ void WiFi_Functions::wifi_fail_bit_listener()
                 // Connect to the AP
                 if (WiFi_Functions::connect_to_ap(WiFi_Functions::AP_Credentials::getInstance()))
                 {
-                    //ESP_LOGI(TAG, "Connection to %s reestablished.", WiFi_Functions::AP_Credentials::getWifi_ssid().c_str());
+                    // ESP_LOGI(TAG, "Connection to %s reestablished.", WiFi_Functions::AP_Credentials::getWifi_ssid().c_str());
                     return;
                 }
                 else
                 {
-                    //ESP_LOGD(TAG, "%s did not accept connection request. Next try in 30 secs.\n", WiFi_Functions::AP_Credentials::getWifi_ssid().c_str());
+                    // ESP_LOGD(TAG, "%s did not accept connection request. Next try in 30 secs.\n", WiFi_Functions::AP_Credentials::getWifi_ssid().c_str());
                     vTaskDelay(30000 / portTICK_PERIOD_MS);
                 }
             }
         }
 
-        //ESP_LOGD(TAG, "Previous AP not available after 10 attempts.");
-        // Start DPP here
+        // ESP_LOGD(TAG, "Previous AP not available after 10 attempts.");
+        //  Start DPP here
         xTaskCreate(dpp_task_start, "dpp_task_start", 2048 * 2, NULL, 22, NULL);
     }
 }

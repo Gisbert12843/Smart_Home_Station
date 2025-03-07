@@ -1,6 +1,8 @@
 #pragma once
 #include <inttypes.h>
 #include <esp_err.h>
+#include <driver/i2c_types.h>
+
 
 namespace i2c_functions
 {

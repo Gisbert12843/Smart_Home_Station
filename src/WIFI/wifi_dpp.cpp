@@ -111,7 +111,7 @@ static void dpp_enrollee_event_cb(esp_supp_dpp_event_t event, void *data)
 static esp_err_t dpp_enrollee_bootstrap(void)
 {
     constexpr const char *TAG = "dpp_enrollee_bootstrap()";
-    //ESP_LOGI(TAG, "dpp_enrollee_bootstrap called");
+    ESP_LOGD(TAG, "dpp_enrollee_bootstrap called");
 
     esp_err_t ret;
     size_t pkey_len = strlen(EXAMPLE_DPP_BOOTSTRAPPING_KEY);
@@ -125,14 +125,14 @@ static esp_err_t dpp_enrollee_bootstrap(void)
 
         if (pkey_len != CURVE_SEC256R1_PKEY_HEX_DIGITS)
         {
-            //ESP_LOGI(TAG, "Invalid key length! Private key needs to be 32 bytes (or 64 hex digits) long");
-            return ESP_FAIL;
+            ESP_LOGW(TAG, "Invalid key length! Private key needs to be 32 bytes (or 64 hex digits) long");
+            return ESP_ERR_INVALID_SIZE;
         }
 
         key = (char *)malloc(sizeof(prefix) + pkey_len + sizeof(postfix));
         if (!key)
         {
-            //ESP_LOGI(TAG, "Failed to allocate memory for bootstrapping key");
+            ESP_LOGE(TAG, "Failed to allocate memory for bootstrapping key");
             return ESP_ERR_NO_MEM;
         }
         sprintf(key, "%s%s%s", prefix, EXAMPLE_DPP_BOOTSTRAPPING_KEY, postfix);
@@ -149,7 +149,7 @@ static esp_err_t dpp_enrollee_bootstrap(void)
 static bool dpp_enrollee_init(void)
 {
     constexpr const char *TAG = "dpp_enrollee_init()";
-    //ESP_LOGI(TAG, "dpp_enrollee_init called");
+    ESP_LOGD(TAG, "dpp_enrollee_init called");
 
     esp_err_t err;
     WiFi_Functions::de_init();
@@ -256,8 +256,8 @@ static bool dpp_enrollee_init(void)
 void dpp_task_start(void *params)
 {
     constexpr const char *TAG = "dpp_task_start()";
-    //ESP_LOGI(TAG, "dpp_task_start START");
+    ESP_LOGI(TAG, "dpp_task_start START");
     dpp_enrollee_init();
-    //ESP_LOGI(TAG, "dpp_task_start END");
+    ESP_LOGI(TAG, "dpp_task_start END");
     vTaskDelete(NULL);
 }

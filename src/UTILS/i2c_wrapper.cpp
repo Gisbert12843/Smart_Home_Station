@@ -1,7 +1,6 @@
 #include "UTILS/i2c_wrapper.h"
 
 #include "driver/i2c_master.h"
-#include <driver/i2c_types.h>
 
 #include "esp_log.h"
 

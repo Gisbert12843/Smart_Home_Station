@@ -1,26 +1,22 @@
 #pragma once
 #include "ui_elements.h"
 
-
 // represents a toggle button for each MQTT topic
 class UI_Button : public UI_Element
 {
 private:
-    lv_obj_t * button_obj;
+    lv_obj_t *button_obj;
     lv_obj_t *status_circle;
     lv_obj_t *label_obj;
     const std::string topic;
     bool state = false;
     std::string id;
 
-        UI_Button(lv_obj_t *button, lv_obj_t *circle, lv_obj_t *label, const std::string &topic, bool p_state)
-        : button_obj(button), status_circle(circle), label_obj(label), topic(topic), state(p_state), id(std::string("UI_Button_") + topic) {} // Assuming topic is unique enough to serve as an ID
 public:
+    UI_Button(lv_obj_t *parent, const std::string &topic, bool state = false);
 
     ~UI_Button();
-    UI_Element_Type getType() const override;
-
-    std::string getId() const override;
+    UI_Element_Type get_type() const override;
 
     lv_obj_t *get_button_obj() const;
 
